@@ -7,7 +7,7 @@ import { gsap } from "gsap";
 import LoadingLogo from "../three/LoadingLogo";
 
 interface LoadingScreenProps {
-  onComplete: () => void;
+  onComplete?: () => void;
 }
 
 export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
@@ -26,7 +26,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
     // Once loading hits 100%, trigger the transition
     if (progress === 100) {
       const tl = gsap.timeline({
-        onComplete: onComplete,
+        onComplete: onComplete ?? (() => {}),
       });
 
       if (prefersReducedMotion) {

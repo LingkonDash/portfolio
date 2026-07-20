@@ -81,7 +81,7 @@ export default function ThemeSwitcher() {
 
   if (!mounted) {
     return (
-      <div className="fixed bottom-6 left-6 z-50">
+      <div className="relative">
         <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-background-elevated opacity-50 cursor-not-allowed">
           <div className="w-2.5 h-2.5 rounded-full bg-muted animate-pulse" />
           <span className="text-xs font-semibold uppercase tracking-wider text-muted">
@@ -95,12 +95,13 @@ export default function ThemeSwitcher() {
   const currentTheme = themes.find((t) => t.name === theme) || themes[0];
 
   return (
-    <div className="fixed bottom-6 left-6 z-50 font-sans">
+    <div className="relative font-sans">
       <button
         ref={triggerRef}
         onClick={toggleDropdown}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
+        data-cursor="button"
         className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-background-elevated hover:bg-background-elevated/80 transition-colors shadow-lg cursor-pointer"
       >
         <span
@@ -116,7 +117,7 @@ export default function ThemeSwitcher() {
         <div
           ref={dropdownRef}
           role="listbox"
-          className="absolute bottom-12 left-0 min-w-[140px] p-1.5 rounded-lg border border-border bg-background-elevated shadow-xl flex flex-col gap-1 origin-bottom-left"
+          className="absolute top-12 right-0 min-w-[140px] p-1.5 rounded-lg border border-border bg-background-elevated shadow-xl flex flex-col gap-1 origin-top-right z-[1010]"
         >
           {themes.map((t) => (
             <button

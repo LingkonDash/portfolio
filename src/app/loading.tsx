@@ -1,0 +1,22 @@
+/**
+ * app/loading.tsx
+ * Next.js file-based loading convention (App Router).
+ *
+ * This file is automatically shown by Next.js inside a React Suspense boundary
+ * while the route segment below it is loading (e.g. during navigation or when
+ * a Server Component is streaming). Next.js controls when it mounts/unmounts —
+ * no manual onComplete callback needed here.
+ *
+ * The LoadingScreen component (with the 3D LD monogram, GSAP fly-through, and
+ * progress counter) is reused as-is. The GSAP animation still plays; the overlay
+ * simply fades out naturally when Next.js removes it after the page is ready.
+ */
+
+import LoadingScreen from "@/components/sections/LoadingScreen";
+
+// Must be a Server Component export (no "use client") for Next.js to recognise
+// it as a loading.tsx segment. LoadingScreen itself is "use client" internally.
+export default function Loading() {
+  // onComplete is optional — Next.js handles unmounting via its Suspense boundary
+  return <LoadingScreen />;
+}

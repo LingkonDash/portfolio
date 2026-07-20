@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 import CustomCursor from "@/components/ui/CustomCursor";
 import AppLoader from "@/components/AppLoader";
+import StarBackground from "@/components/sections/StarBackground";
+import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import "./globals.css";
 
 // TODO: Swap in a custom font here if desired.
@@ -51,11 +52,25 @@ export default function RootLayout({
             eclipse: "eclipse",
           }}
         >
+          {/* Star particle background — fixed, z-index:0, behind all content.
+               Position:fixed takes it out of document flow, so Lenis's scroll
+               transform on the document root does NOT affect it. */}
+          <StarBackground />
+
+          {/* Custom cursor — also position:fixed, same reasoning as above */}
           <CustomCursor />
-          <AppLoader>
-            {children}
-          </AppLoader>
-          <ThemeSwitcher />
+
+          {/*
+            SmoothScrollProvider wraps the actual page content.
+            - Initialises Lenis + wires into GSAP ticker (one shared rAF loop)
+            - StarBackground/CustomCursor are fixed, so Lenis transform is safe
+            - ThemeSwitcher is inside so it can use useLenis() in future phases
+          */}
+          <SmoothScrollProvider>
+            <AppLoader>
+              {children}
+            </AppLoader>
+          </SmoothScrollProvider>
         </ThemeProvider>
       </body>
     </html>

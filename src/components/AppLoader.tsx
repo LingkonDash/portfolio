@@ -1,28 +1,15 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
-import LoadingScreen from "./sections/LoadingScreen";
+/**
+ * AppLoader.tsx
+ *
+ * Previously: mounted a full-screen LoadingScreen that blocked all page content
+ * until drei's useProgress hit 100%.
+ *
+ * Now: the loading experience lives in app/loading.tsx, which Next.js handles
+ * automatically via its Suspense boundary. AppLoader is kept as a thin pass-
+ * through wrapper so the layout import doesn't need to change — it can be
+ * removed entirely in a later cleanup phase if desired.
+ */
 
 export default function AppLoader({ children }: { children: React.ReactNode }) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    // Return children immediately on SSR to maintain SEO readability, 
-    // or hide them using CSS until hydration. Standard is showing children or loading placeholder.
-    // For portfolio layout, return a blank screen with background color during SSR.
-    return (
-      <div className="fixed inset-0 bg-[#0a0a0f]" />
-    );
-  }
-
-  if (isLoading) {
-    return <LoadingScreen onComplete={() => setIsLoading(false)} />;
-  }
-
   return <>{children}</>;
 }
