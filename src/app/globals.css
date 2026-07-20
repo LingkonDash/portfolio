@@ -1,26 +1,73 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-background: var(--color-bg);
+  --color-background-elevated: var(--color-bg-elevated);
+  --color-foreground: var(--color-fg);
+  --color-muted: var(--color-muted);
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+  --color-border: var(--color-border);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Void theme (Default) */
+:root, [data-theme="void"] {
+  --color-bg: #0a0a0f;
+  --color-bg-elevated: #12121c;
+  --color-fg: #f0f2f5;
+  --color-muted: #738096; /* Desaturated cyan-grey */
+  --color-accent: #4dd8ff;
+  --color-accent-foreground: #0a0a0f;
+  --color-border: #1e2030;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Nebula theme */
+[data-theme="nebula"] {
+  --color-bg: #0f0a1a;
+  --color-bg-elevated: #1b122e;
+  --color-fg: #f1eef8;
+  --color-muted: #857b9c; /* Desaturated violet-grey */
+  --color-accent: #b565f5;
+  --color-accent-foreground: #0f0a1a;
+  --color-border: #281c42;
+}
+
+/* Solstice theme */
+[data-theme="solstice"] {
+  --color-bg: #120a06;
+  --color-bg-elevated: #21130b;
+  --color-fg: #f7f3f0;
+  --color-muted: #9c897b; /* Warm grey */
+  --color-accent: #ff8a3d;
+  --color-accent-foreground: #120a06;
+  --color-border: #331e11;
+}
+
+/* Aurora theme */
+[data-theme="aurora"] {
+  --color-bg: #06120f;
+  --color-bg-elevated: #0c211b;
+  --color-fg: #eff8f5;
+  --color-muted: #7b9c90; /* Cool green-grey */
+  --color-accent: #4dffb8;
+  --color-accent-foreground: #06120f;
+  --color-border: #11332a;
+}
+
+/* Eclipse theme */
+[data-theme="eclipse"] {
+  --color-bg: #0c0c0d;
+  --color-bg-elevated: #18181a;
+  --color-fg: #e6e6e8;
+  --color-muted: #86868a; /* Neutral grey */
+  --color-accent: #d9d9e0;
+  --color-accent-foreground: #0c0c0d;
+  --color-border: #262629;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
