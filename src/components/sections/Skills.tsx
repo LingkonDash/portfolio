@@ -16,80 +16,26 @@ import {
   Zap,
   Settings,
 } from "lucide-react";
+import { Skill } from "@/types/data";
+
+const lucideIcons: Record<string, React.ComponentType<{ size?: number | string }>> = {
+  FileCode,
+  Layout,
+  Code,
+  Globe,
+  Server,
+  Terminal,
+  Database,
+  ShieldCheck,
+  TrendingUp,
+  Zap,
+  Settings,
+};
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
 
-const skillsData = [
-  {
-    name: "HTML",
-    icon: FileCode,
-    description:
-      "I use HTML5 as the structural backbone of every project, focusing on semantic elements for accessibility, SEO, and maintainability. I ensure proper document hierarchy, optimized media handling, and clean, readable markup that integrates seamlessly with modern frameworks.",
-  },
-  {
-    name: "CSS",
-    icon: Layout,
-    description:
-      "I design responsive and scalable interfaces using modern CSS techniques like Flexbox, Grid, and custom properties. I focus on performance, reusability, and consistency, often combining CSS with utility-first approaches for rapid UI development.",
-  },
-  {
-    name: "React",
-    icon: Code,
-    description:
-      "I build dynamic, component-driven interfaces with React, focusing on reusable logic through hooks and clean state management. I emphasize predictable data flow and performance-conscious rendering to keep applications fast as they scale.",
-  },
-  {
-    name: "Next.js",
-    icon: Globe,
-    description:
-      "I use Next.js to build production-ready full-stack applications, leveraging server-side rendering, routing, and API routes to deliver fast, SEO-friendly experiences. I focus on structuring apps for scalability and maintainability from the start.",
-  },
-  {
-    name: "Node.js",
-    icon: Server,
-    description:
-      "I use Node.js to build efficient, event-driven backend systems, handling asynchronous operations and server logic with a focus on performance and reliability under real-world load.",
-  },
-  {
-    name: "Express.js",
-    icon: Terminal,
-    description:
-      "I structure RESTful APIs and backend architecture with Express.js, emphasizing clean routing, middleware design, and secure, maintainable server logic.",
-  },
-  {
-    name: "MongoDB",
-    icon: Database,
-    description:
-      "I design flexible, scalable data models with MongoDB, focusing on efficient schema design and query performance to support real-world application needs.",
-  },
-  {
-    name: "better-auth",
-    icon: ShieldCheck,
-    description:
-      "I implement secure, modern authentication flows using better-auth, focusing on reliable session handling and a smooth, frictionless login experience for users.",
-  },
-  {
-    name: "Vercel",
-    icon: TrendingUp,
-    description:
-      "I deploy and manage full-stack applications on Vercel, taking advantage of its seamless CI/CD pipeline and edge infrastructure to ship fast, reliable production builds.",
-  },
-  {
-    name: "Vite",
-    icon: Zap,
-    description:
-      "I use Vite for rapid local development, relying on its fast HMR and optimized build process to keep the development feedback loop tight.",
-  },
-  {
-    name: "VS Code",
-    icon: Settings,
-    description:
-      "I rely on VS Code as my primary development environment, customizing it with extensions and workflows that keep my coding process efficient and organized.",
-  },
-];
-
-export default function Skills() {
+export default function Skills({ skills }: { skills: Skill[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const wheelRef = useRef<HTMLDivElement>(null);
   const mobileRef = useRef<HTMLDivElement>(null);
@@ -110,7 +56,7 @@ export default function Skills() {
     const wheel = wheelRef.current;
     const items = wheel.querySelectorAll(".skill-node");
 
-    const totalItems = skillsData.length;
+    const totalItems = skills.length;
     const arcDegrees = 180; // half circle
     const stepAngle = arcDegrees / (totalItems - 1);
 
@@ -195,7 +141,8 @@ export default function Skills() {
     };
   }, [isFinePointer, prefersReducedMotion]);
 
-  const activeSkill = skillsData[activeIdx];
+  const activeSkill = skills[activeIdx];
+  const ActiveIcon = activeSkill ? (lucideIcons[activeSkill.icon] || Code) : Code;
 
   return (
     <section
@@ -216,7 +163,7 @@ export default function Skills() {
               {activeSkill && (
                 <>
                   <div className="p-3 rounded-full bg-accent/10 text-accent animate-pulse">
-                    <activeSkill.icon size={36} />
+                    <ActiveIcon size={36} />
                   </div>
                   <h3 className="text-2xl font-bold tracking-tight text-foreground">
                     {activeSkill.name}
@@ -231,8 +178,8 @@ export default function Skills() {
             {/* Rotating Half-Circle Track */}
             <div className="relative w-[640px] h-[640px] border border-border/20 rounded-full translate-y-[320px] flex items-center justify-center">
               <div ref={wheelRef} className="relative w-full h-full">
-                {skillsData.map((skill, index) => {
-                  const Icon = skill.icon;
+                {skills.map((skill, index) => {
+                  const Icon = lucideIcons[skill.icon] || Code;
                   const isActive = index === activeIdx;
 
                   return (
@@ -266,8 +213,8 @@ export default function Skills() {
         ) : (
           /* 2. MOBILE & REDUCED MOTION: Stepper list fallback */
           <div ref={mobileRef} className="flex flex-col gap-6 w-full max-w-xl mx-auto">
-            {skillsData.map((skill) => {
-              const Icon = skill.icon;
+            {skills.map((skill) => {
+              const Icon = lucideIcons[skill.icon] || Code;
               return (
                 <div
                   key={skill.name}

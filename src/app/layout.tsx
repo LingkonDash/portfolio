@@ -5,6 +5,7 @@ import CustomCursor from "@/components/ui/CustomCursor";
 import AppLoader from "@/components/AppLoader";
 import StarBackground from "@/components/sections/StarBackground";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
+import Navbar from "@/components/sections/Navbar";
 import "./globals.css";
 
 // TODO: Swap in a custom font here if desired.
@@ -67,6 +68,8 @@ export default function RootLayout({
             - ThemeSwitcher is inside so it can use useLenis() in future phases
           */}
           <SmoothScrollProvider>
+            {/* Navbar is in layout so it renders on all routes (homepage + /projects/[slug] etc.) */}
+            <Navbar />
             <AppLoader>
               {children}
             </AppLoader>

@@ -5,40 +5,16 @@ import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
-import { Cpu, BookOpen, Building2, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { Project } from "@/types/data";
+import { projectIcons } from "@/lib/project-icons";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
-// ─── Content ──────────────────────────────────────────────────────────────────
-const PROJECTS = [
-  {
-    number: "01",
-    title: "Recipe Hut",
-    slug: "recipe-hut",
-    Icon: Cpu,
-    description:
-      "AI-powered recipe discovery and cooking platform built as a complete Agentic AI application. Beyond standard CRUD and content browsing, it integrates two distinct agentic AI systems — a context-aware conversational assistant and a reasoning-driven pantry agent — that go beyond simple text generation to demonstrate memory, tool use, and decision-making. An intelligent cooking assistant with AI chat, recipe insights, and interactive guidance.",
-  },
-  {
-    number: "02",
-    title: "Book Hub",
-    slug: "book-hub",
-    Icon: BookOpen,
-    description:
-      "BookHub is a full-stack Online Book Delivery Management System where readers can browse a curated library, pay a delivery fee via Stripe, and have physical books delivered to their doorstep. Librarians manage their book listings and track delivery statuses. Admins oversee the entire platform — approving books, managing users, and monitoring transactions.",
-  },
-  {
-    number: "03",
-    title: "Space Sync",
-    slug: "space-sync",
-    Icon: Building2,
-    description:
-      "SpaceSync is a full-stack co-working and event space booking platform where renters discover and book desks, meeting rooms, event halls, and studios — and hosts list and manage their own spaces. Built with a strict three-role system (User, Host, Admin), server-driven filtering, and a fully typed TypeScript stack across both frontend and backend.",
-  },
-] as const;
+// ─── Content is now imported from @/lib/projects ─────────────────────────────
 
 // ─── Component ────────────────────────────────────────────────────────────────
-export default function Projects() {
+export default function Projects({ projects }: { projects: Project[] }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -215,8 +191,8 @@ export default function Projects() {
 
           {/* ── Project entries ──────────────────────────────────────────── */}
           <div className="relative z-10 flex flex-col gap-20 md:gap-28">
-            {PROJECTS.map((project, i) => {
-              const { Icon } = project;
+            {projects.map((project, i) => {
+              const Icon = projectIcons[project.iconKey];
               // Even index (0, 2): description LEFT | image RIGHT
               // Odd index  (1):    image LEFT       | description RIGHT
               const isEven = i % 2 === 0;
@@ -239,7 +215,7 @@ export default function Projects() {
                   >
                     {/* Project index label */}
                     <span className="font-mono text-[10px] tracking-[0.35em] text-muted/40 uppercase">
-                      {project.number}&thinsp;/&thinsp;0{PROJECTS.length}
+                      {project.number}&thinsp;/&thinsp;0{projects.length}
                     </span>
 
                     {/* Title — large typographic treatment */}
