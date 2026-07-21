@@ -8,6 +8,7 @@ import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { ArrowRight } from "lucide-react";
 import { Project } from "@/types/data";
 import { projectIcons } from "@/lib/project-icons";
+import { ANIM_CONFIG } from "@/lib/animation-config";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
@@ -55,11 +56,11 @@ export default function Projects({ projects }: { projects: Project[] }) {
         once: true,
         onEnter: () => {
           if (prefersReducedMotion) {
-            gsap.to(entry, { opacity: 1, duration: 0.5, ease: "power2.out" });
+            gsap.to(entry, { opacity: 1, duration: ANIM_CONFIG.duration, ease: ANIM_CONFIG.ease });
           } else {
             if (textEl) {
               tweens.push(
-                gsap.to(textEl, { opacity: 1, x: 0, duration: 0.75, ease: "power2.out" })
+                gsap.to(textEl, { opacity: 1, x: 0, duration: ANIM_CONFIG.duration, ease: ANIM_CONFIG.ease })
               );
             }
             if (imgEl) {
@@ -67,8 +68,8 @@ export default function Projects({ projects }: { projects: Project[] }) {
                 gsap.to(imgEl, {
                   opacity: 1,
                   x: 0,
-                  duration: 0.75,
-                  ease: "power2.out",
+                  duration: ANIM_CONFIG.duration,
+                  ease: ANIM_CONFIG.ease,
                   delay: 0.12,
                 })
               );

@@ -17,6 +17,7 @@ import {
   Settings,
 } from "lucide-react";
 import { Skill } from "@/types/data";
+import { ANIM_CONFIG } from "@/lib/animation-config";
 
 const lucideIcons: Record<string, React.ComponentType<{ size?: number | string }>> = {
   FileCode,
@@ -129,7 +130,7 @@ export default function Skills({ skills }: { skills: Skill[] }) {
           gsap.fromTo(
             card,
             { opacity: 0, y: 30 },
-            { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+            { opacity: 1, y: 0, duration: ANIM_CONFIG.duration, ease: ANIM_CONFIG.ease }
           );
         },
       });

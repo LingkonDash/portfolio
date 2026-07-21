@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Terminal, Code, Database } from "lucide-react";
+import { ANIM_CONFIG } from "@/lib/animation-config";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -42,14 +43,14 @@ export default function About() {
     } else {
       // Photo reveal
       if (photoRef.current) {
-        const photoTrigger = ScrollTrigger.create({
+         const photoTrigger = ScrollTrigger.create({
           trigger: photoRef.current,
           start: "top bottom-=80",
           onEnter: () => {
             gsap.fromTo(
               photoRef.current,
               { opacity: 0, scale: 0.95 },
-              { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }
+              { opacity: 1, scale: 1, duration: ANIM_CONFIG.duration, ease: ANIM_CONFIG.ease }
             );
           },
         });
@@ -66,7 +67,7 @@ export default function About() {
             gsap.fromTo(
               paragraphs,
               { opacity: 0, y: 20 },
-              { opacity: 1, y: 0, duration: 0.6, stagger: 0.15, ease: "power2.out" }
+              { opacity: 1, y: 0, duration: ANIM_CONFIG.duration, stagger: ANIM_CONFIG.stagger, ease: ANIM_CONFIG.ease }
             );
           },
         });
@@ -83,7 +84,7 @@ export default function About() {
             gsap.fromTo(
               items,
               { opacity: 0, x: -15 },
-              { opacity: 1, x: 0, duration: 0.5, stagger: 0.1, ease: "power2.out" }
+              { opacity: 1, x: 0, duration: ANIM_CONFIG.duration, stagger: 0.1, ease: ANIM_CONFIG.ease }
             );
           },
         });
