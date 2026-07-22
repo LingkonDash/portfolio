@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
-import { useLenis } from "@/hooks/useLenis";
+import { usePathname, useRouter } from "next/navigation";
+import { scrollToSection } from "@/lib/scroll";
 
 interface NavMenuOverlayProps {
   isOpen: boolean;
@@ -22,7 +23,9 @@ export default function NavMenuOverlay({ isOpen, onClose, activeSection }: NavMe
   const overlayRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const linksRef = useRef<(HTMLButtonElement | null)[]>([]);
-  const lenis = useLenis();
+  const pathname = usePathname();
+  const router = useRouter();
+  const [pendingHash, setPendingHash] = useState<string | null>(null);
 
   // Escape key handler
   useEffect(() => {
@@ -96,18 +99,28 @@ export default function NavMenuOverlay({ isOpen, onClose, activeSection }: NavMe
 
   const handleLinkClick = (href: string) => {
     onClose();
-    // Use lenis if initialized, or fall back to standard element scrolling
-    if (lenis) {
-      setTimeout(() => {
-        lenis.scrollTo(href, { duration: 1.5, offset: -80 });
-      }, 350); // slight delay to allow overlay closing animation to start
-    } else {
-      const element = document.querySelector(href);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
+    const hash = href.startsWith("#") ? href : `#${href}`;
+
+    const scrollToHash = () => {
+      scrollToSection(hash, { behavior: "smooth" });
+    };
+
+    if (pathname === "/") {
+      setTimeout(scrollToHash, 350);
+      return;
     }
+
+    setPendingHash(hash);
+    router.push(`/${hash}`, { scroll: false });
   };
+
+  useEffect(() => {
+    if (!pendingHash || pathname !== "/") return;
+
+    if (scrollToSection(pendingHash, { behavior: "smooth" })) {
+      setPendingHash(null);
+    }
+  }, [pendingHash, pathname]);
 
   // Modern GSAP hover effect (3D skew tilt + scale)
   const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>, index: number) => {

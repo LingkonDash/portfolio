@@ -4,7 +4,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import CustomCursor from "@/components/ui/CustomCursor";
 import AppLoader from "@/components/AppLoader";
 import StarBackground from "@/components/sections/StarBackground";
-import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
+import ScrollProvider from "@/components/providers/ScrollProvider";
 import Navbar from "@/components/sections/Navbar";
 import "./globals.css";
 
@@ -62,18 +62,17 @@ export default function RootLayout({
           <CustomCursor />
 
           {/*
-            SmoothScrollProvider wraps the actual page content.
-            - Initialises Lenis + wires into GSAP ticker (one shared rAF loop)
-            - StarBackground/CustomCursor are fixed, so Lenis transform is safe
-            - ThemeSwitcher is inside so it can use useLenis() in future phases
+            ScrollProvider wraps the actual page content.
+            - keeps browser scroll restoration manual
+            - refreshes GSAP ScrollTrigger after mount
           */}
-          <SmoothScrollProvider>
+          <ScrollProvider>
             {/* Navbar is in layout so it renders on all routes (homepage + /projects/[slug] etc.) */}
             <Navbar />
             <AppLoader>
               {children}
             </AppLoader>
-          </SmoothScrollProvider>
+          </ScrollProvider>
         </ThemeProvider>
       </body>
     </html>

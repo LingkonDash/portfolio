@@ -1,20 +1,15 @@
 "use client";
 
 import React from "react";
-import { useLenis } from "@/hooks/useLenis";
+import { scrollToSection } from "@/lib/scroll";
 import SocialLinks from "@/components/ui/SocialLinks";
 import { ArrowUp } from "lucide-react";
 
 export default function Footer() {
-  const lenis = useLenis();
   const currentYear = new Date().getFullYear();
 
   const handleBackToTop = () => {
-    if (lenis) {
-      lenis.scrollTo("#hero", { duration: 1.5 });
-    } else {
-      document.querySelector("#hero")?.scrollIntoView({ behavior: "smooth" });
-    }
+    scrollToSection("#hero", { behavior: "smooth" });
   };
 
   return (

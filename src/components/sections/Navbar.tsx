@@ -3,7 +3,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useLenis } from "@/hooks/useLenis";
+import { usePathname, useRouter } from "next/navigation";
+import { scrollToSection } from "@/lib/scroll";
 import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 import NavMenuOverlay from "./NavMenuOverlay";
 
@@ -11,17 +12,19 @@ import NavMenuOverlay from "./NavMenuOverlay";
 gsap.registerPlugin(ScrollTrigger);
 
 const sectionIds = [
-  { id: "#hero", key: "home" },
-  { id: "#about", key: "about" },
-  { id: "#skills", key: "skills" },
-  { id: "#projects", key: "projects" },
-  { id: "#contact", key: "connect" },
+  { id: "hero", key: "home" },
+  { id: "about", key: "about" },
+  { id: "skills", key: "skills" },
+  { id: "projects", key: "projects" },
+  { id: "contact", key: "connect" },
 ];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
-  const lenis = useLenis();
+  const [pendingSection, setPendingSection] = useState<string | null>(null);
+  const pathname = usePathname();
+  const router = useRouter();
 
   // Morph button refs
   const topBarRef = useRef<HTMLSpanElement>(null);
@@ -33,13 +36,14 @@ export default function Navbar() {
     const triggers: ScrollTrigger[] = [];
 
     sectionIds.forEach(({ id, key }) => {
-      const element = document.querySelector(id);
+      const element = document.querySelector(`#${id}`);
       if (!element) return;
 
       const trigger = ScrollTrigger.create({
         trigger: element,
-        start: "top center+=100",
-        end: "bottom center+=100",
+        start: "top center",
+        end: "bottom top",
+        invalidateOnRefresh: true,
         onToggle: (self) => {
           if (self.isActive) {
             setActiveSection(key);
@@ -53,6 +57,29 @@ export default function Navbar() {
       triggers.forEach((t) => t.kill());
     };
   }, []);
+
+  useEffect(() => {
+    if (!pendingSection || pathname !== "/") return;
+
+    if (scrollToSection(pendingSection, { behavior: "smooth" })) {
+      setPendingSection(null);
+    }
+  }, [pendingSection, pathname]);
+
+  const navigateToSection = (target: string) => {
+    if (pathname === "/") {
+      const targetElement = document.querySelector(`#${target}`);
+      if (targetElement) {
+        scrollToSection(target, { behavior: "smooth" });
+        return;
+      }
+      setPendingSection(target);
+      return;
+    }
+
+    setPendingSection(target);
+    router.push(`/#${target}`, { scroll: false });
+  };
 
   // GSAP Hamburger morphing animation
   useEffect(() => {
@@ -83,11 +110,7 @@ export default function Navbar() {
 
   const handleWordmarkClick = () => {
     if (isOpen) setIsOpen(false);
-    if (lenis) {
-      lenis.scrollTo("#hero", { duration: 1.5 });
-    } else {
-      document.querySelector("#hero")?.scrollIntoView({ behavior: "smooth" });
-    }
+    navigateToSection("hero");
   };
 
   return (

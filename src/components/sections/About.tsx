@@ -104,11 +104,11 @@ export default function About() {
       ref={containerRef}
       className="py-16 md:py-24 flex flex-col justify-center border-t border-border/10 select-none"
     >
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center w-full">
-        {/* Left Column: Photo shape placeholder */}
+      <div className="grid grid-cols-1 gap-12 items-center w-full">
+        {/* Profile photo centered at top */}
         <div
           ref={photoRef}
-          className="md:col-span-5 flex justify-center opacity-0"
+          className="flex justify-center opacity-0"
         >
           <div
             data-cursor="card"
@@ -138,8 +138,8 @@ export default function About() {
           </div>
         </div>
 
-        {/* Right Column: Bio details */}
-        <div ref={textRef} className="md:col-span-7 flex flex-col gap-6 text-left">
+        {/* About details underneath */}
+        <div ref={textRef} className="flex flex-col gap-6 text-left">
           <h2 className="reveal-text text-2xl md:text-3xl font-black tracking-tight text-foreground opacity-0">
             About Me
           </h2>
