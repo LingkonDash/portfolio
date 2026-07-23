@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { scrollToSection } from "@/lib/scroll";
 import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 import NavMenuOverlay from "./NavMenuOverlay";
@@ -22,9 +23,7 @@ const sectionIds = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
-  const [pendingSection, setPendingSection] = useState<string | null>(null);
   const pathname = usePathname();
-  const router = useRouter();
 
   // Morph button refs
   const topBarRef = useRef<HTMLSpanElement>(null);
@@ -58,27 +57,13 @@ export default function Navbar() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!pendingSection || pathname !== "/") return;
-
-    if (scrollToSection(pendingSection, { behavior: "smooth" })) {
-      setPendingSection(null);
-    }
-  }, [pendingSection, pathname]);
-
   const navigateToSection = (target: string) => {
     if (pathname === "/") {
       const targetElement = document.querySelector(`#${target}`);
       if (targetElement) {
         scrollToSection(target, { behavior: "smooth" });
-        return;
       }
-      setPendingSection(target);
-      return;
     }
-
-    setPendingSection(target);
-    router.push(`/#${target}`, { scroll: false });
   };
 
   // GSAP Hamburger morphing animation
@@ -108,16 +93,21 @@ export default function Navbar() {
     }
   }, [isOpen]);
 
-  const handleWordmarkClick = () => {
+  const handleWordmarkClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (isOpen) setIsOpen(false);
-    navigateToSection("hero");
+
+    if (pathname === "/") {
+      event.preventDefault();
+      navigateToSection("hero");
+    }
   };
 
   return (
     <>
       <header className="fixed top-0 left-0 right-0 h-20 flex items-center justify-between px-6 md:px-12 bg-background/60 backdrop-blur-md border-b border-border/30 z-[1000] select-none">
         {/* Left: Wordmark Logo */}
-        <button
+        <Link
+          href="/#hero"
           onClick={handleWordmarkClick}
           data-cursor="link"
           className="flex items-center gap-3 text-lg md:text-xl font-bold tracking-tight text-foreground hover:text-accent transition-colors"
@@ -128,7 +118,7 @@ export default function Navbar() {
             className="w-1.5 h-1.5 rounded-full bg-accent transition-opacity duration-300 shadow-[0_0_8px_var(--color-accent)]"
             style={{ opacity: isOpen ? 0 : 1 }}
           />
-        </button>
+        </Link>
 
         {/* Right Controls */}
         <div className="flex items-center gap-6">

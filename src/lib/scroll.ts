@@ -1,3 +1,9 @@
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
 export const NAVBAR_SCROLL_OFFSET = 80;
 
 export function normalizeHash(target: string) {
@@ -17,27 +23,14 @@ export function scrollToSection(
 
   const offset = options?.offset ?? NAVBAR_SCROLL_OFFSET;
   const top = element.getBoundingClientRect().top + window.scrollY - offset;
+  const duration = options?.behavior === "smooth" ? 0.9 : 0.01;
 
-  window.scrollTo({
-    top: Math.max(0, top),
-    left: 0,
-    behavior: options?.behavior ?? "smooth",
+  gsap.to(window, {
+    duration,
+    scrollTo: { y: top, offsetY: offset },
+    ease: "power2.inOut",
   });
 
   return true;
 }
 
-export function restoreScrollPosition() {
-  if (typeof window === "undefined") return;
-  if ("scrollRestoration" in window.history) {
-    window.history.scrollRestoration = "manual";
-  }
-
-  const hash = window.location.hash;
-  if (hash) {
-    scrollToSection(hash, { behavior: "auto" });
-    return;
-  }
-
-  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-}

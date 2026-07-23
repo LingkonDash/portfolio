@@ -4,8 +4,8 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import CustomCursor from "@/components/ui/CustomCursor";
 import AppLoader from "@/components/AppLoader";
 import StarBackground from "@/components/sections/StarBackground";
-import ScrollProvider from "@/components/providers/ScrollProvider";
 import Navbar from "@/components/sections/Navbar";
+import InitialScrollReset from "@/components/InitialScrollReset";
 import "./globals.css";
 
 // TODO: Swap in a custom font here if desired.
@@ -53,26 +53,19 @@ export default function RootLayout({
             eclipse: "eclipse",
           }}
         >
-          {/* Star particle background — fixed, z-index:0, behind all content.
-               Position:fixed takes it out of document flow, so Lenis's scroll
-               transform on the document root does NOT affect it. */}
+          {/* Star particle background — fixed, z-index:0, behind all content. */}
           <StarBackground />
 
           {/* Custom cursor — also position:fixed, same reasoning as above */}
           <CustomCursor />
 
-          {/*
-            ScrollProvider wraps the actual page content.
-            - keeps browser scroll restoration manual
-            - refreshes GSAP ScrollTrigger after mount
-          */}
-          <ScrollProvider>
-            {/* Navbar is in layout so it renders on all routes (homepage + /projects/[slug] etc.) */}
-            <Navbar />
-            <AppLoader>
-              {children}
-            </AppLoader>
-          </ScrollProvider>
+          <InitialScrollReset />
+
+          {/* Navbar is in layout so it renders on all routes (homepage + /projects/[slug] etc.) */}
+          <Navbar />
+          <AppLoader>
+            {children}
+          </AppLoader>
         </ThemeProvider>
       </body>
     </html>

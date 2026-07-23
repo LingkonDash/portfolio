@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import HeroCard from "@/components/three/HeroCard";
 import SocialLinks from "@/components/ui/SocialLinks";
-import { useLenis } from "@/hooks/useLenis";
+import { scrollToSection } from "@/lib/scroll";
 
 const roles = ["Full Stack Developer", "AI Enthusiast", "MERN Developer"];
 
@@ -74,7 +74,6 @@ export default function Hero() {
   const buttonWrapperRef = useRef<HTMLDivElement>(null);
   const cardContainerRef = useRef<HTMLDivElement>(null);
   const typewriterTimelineRef = useRef<gsap.core.Timeline | null>(null);
-  const lenis = useLenis();
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -179,7 +178,7 @@ export default function Hero() {
   }, []);
 
   const handleContactClick = () => {
-    lenis?.scrollTo("#contact", { duration: 1.2 });
+    scrollToSection("contact", { behavior: "smooth" });
   };
 
   return (

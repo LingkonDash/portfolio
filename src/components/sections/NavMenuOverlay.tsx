@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
+import Link from "next/link";
 import { gsap } from "gsap";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { scrollToSection } from "@/lib/scroll";
 
 interface NavMenuOverlayProps {
@@ -12,20 +13,18 @@ interface NavMenuOverlayProps {
 }
 
 const navLinks = [
-  { label: "Home", href: "#hero", key: "home" },
-  { label: "About", href: "#about", key: "about" },
-  { label: "Skills", href: "#skills", key: "skills" },
-  { label: "Projects", href: "#projects", key: "projects" },
-  { label: "Connect", href: "#contact", key: "connect" },
+  { label: "Home", href: "/#hero", key: "home" },
+  { label: "About", href: "/#about", key: "about" },
+  { label: "Skills", href: "/#skills", key: "skills" },
+  { label: "Projects", href: "/#projects", key: "projects" },
+  { label: "Connect", href: "/#contact", key: "connect" },
 ];
 
 export default function NavMenuOverlay({ isOpen, onClose, activeSection }: NavMenuOverlayProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const linksRef = useRef<(HTMLButtonElement | null)[]>([]);
+  const linksRef = useRef<(HTMLAnchorElement | null)[]>([]);
   const pathname = usePathname();
-  const router = useRouter();
-  const [pendingHash, setPendingHash] = useState<string | null>(null);
 
   // Escape key handler
   useEffect(() => {
@@ -97,33 +96,18 @@ export default function NavMenuOverlay({ isOpen, onClose, activeSection }: NavMe
     }
   }, [isOpen]);
 
-  const handleLinkClick = (href: string) => {
+  const handleLinkClick = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     onClose();
-    const hash = href.startsWith("#") ? href : `#${href}`;
-
-    const scrollToHash = () => {
-      scrollToSection(hash, { behavior: "smooth" });
-    };
 
     if (pathname === "/") {
-      setTimeout(scrollToHash, 350);
-      return;
+      event.preventDefault();
+      const hash = href.startsWith("/#") ? href.slice(1) : href;
+      scrollToSection(hash, { behavior: "smooth" });
     }
-
-    setPendingHash(hash);
-    router.push(`/${hash}`, { scroll: false });
   };
 
-  useEffect(() => {
-    if (!pendingHash || pathname !== "/") return;
-
-    if (scrollToSection(pendingHash, { behavior: "smooth" })) {
-      setPendingHash(null);
-    }
-  }, [pendingHash, pathname]);
-
   // Modern GSAP hover effect (3D skew tilt + scale)
-  const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>, index: number) => {
+  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>, index: number) => {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) return;
 
@@ -147,7 +131,7 @@ export default function NavMenuOverlay({ isOpen, onClose, activeSection }: NavMe
     }
   };
 
-  const handleMouseLeave = (e: React.MouseEvent<HTMLButtonElement>, index: number) => {
+  const handleMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>, index: number) => {
     const el = e.currentTarget;
     const underline = el.querySelector(".nav-underline");
     const isActive = activeSection === navLinks[index].key;
@@ -192,11 +176,12 @@ export default function NavMenuOverlay({ isOpen, onClose, activeSection }: NavMe
                   index === 4 ? "md:col-span-2 md:justify-center mt-4" : ""
                 }`}
               >
-                <button
+                <Link
+                  href={link.href}
                   ref={(el) => {
                     linksRef.current[index] = el;
                   }}
-                  onClick={() => handleLinkClick(link.href)}
+                  onClick={(event) => handleLinkClick(event, link.href)}
                   onMouseEnter={(e) => handleMouseEnter(e, index)}
                   onMouseLeave={(e) => handleMouseLeave(e, index)}
                   data-cursor="link"
@@ -218,7 +203,7 @@ export default function NavMenuOverlay({ isOpen, onClose, activeSection }: NavMe
                       transformOrigin: "left",
                     }}
                   />
-                </button>
+                </Link>
               </div>
             );
           })}

@@ -255,7 +255,6 @@ export default function Contact() {
                       <input
                         id="name-input"
                         type="text"
-                        autoFocus
                         placeholder="Type your name here..."
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
