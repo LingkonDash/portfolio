@@ -17,7 +17,7 @@ const sectionIds = [
   { id: "about", key: "about" },
   { id: "skills", key: "skills" },
   { id: "projects", key: "projects" },
-  { id: "contact", key: "connect" },
+  { id: "connect", key: "connect" },
 ];
 
 export default function Navbar() {

@@ -17,13 +17,15 @@ const navLinks = [
   { label: "About", href: "/#about", key: "about" },
   { label: "Skills", href: "/#skills", key: "skills" },
   { label: "Projects", href: "/#projects", key: "projects" },
-  { label: "Connect", href: "/#contact", key: "connect" },
+  { label: "Connect", href: "/#connect", key: "connect" },
 ];
 
 export default function NavMenuOverlay({ isOpen, onClose, activeSection }: NavMenuOverlayProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const linksRef = useRef<(HTMLAnchorElement | null)[]>([]);
+  const timelineRef = useRef<gsap.core.Timeline | null>(null);
+  const reducedMotionRef = useRef<boolean | null>(null);
   const pathname = usePathname();
 
   // Escape key handler
@@ -42,57 +44,55 @@ export default function NavMenuOverlay({ isOpen, onClose, activeSection }: NavMe
     if (!overlayRef.current) return;
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const shouldRebuildTimeline = !timelineRef.current || reducedMotionRef.current !== prefersReducedMotion;
+
+    if (shouldRebuildTimeline) {
+      timelineRef.current?.kill();
+      reducedMotionRef.current = prefersReducedMotion;
+
+      const tl = gsap.timeline({ paused: true });
+      if (prefersReducedMotion) {
+        tl.set(overlayRef.current, { display: "none", opacity: 0 })
+          .set(overlayRef.current, { display: "flex" })
+          .to(overlayRef.current, { opacity: 1, duration: 0.2, ease: "power2.out" });
+      } else {
+        tl.set(overlayRef.current, {
+          display: "none",
+          clipPath: "polygon(0 0, 100% 0, 100% 0, 0 0)",
+        })
+          .set(overlayRef.current, { display: "flex" })
+          .to(overlayRef.current, {
+            clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
+            duration: 0.85,
+            ease: "power4.inOut",
+          })
+          .fromTo(
+            linksRef.current.filter(Boolean),
+            { y: 50, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              duration: 0.6,
+              stagger: 0.1,
+              ease: "power3.out",
+            },
+            0.3
+          );
+      }
+
+      tl.eventCallback("onReverseComplete", () => {
+        if (overlayRef.current) {
+          gsap.set(overlayRef.current, { display: "none" });
+        }
+      });
+
+      timelineRef.current = tl;
+    }
 
     if (isOpen) {
-      // Open animation
-      gsap.killTweensOf([overlayRef.current, linksRef.current]);
-
-      if (prefersReducedMotion) {
-        gsap.set(overlayRef.current, { display: "flex", opacity: 0 });
-        gsap.to(overlayRef.current, { opacity: 1, duration: 0.2, ease: "power2.out" });
-      } else {
-        // Curtain clip-path drop
-        gsap.set(overlayRef.current, {
-          display: "flex",
-          clipPath: "polygon(0 0, 100% 0, 100% 0, 0 0)",
-        });
-        gsap.to(overlayRef.current, {
-          clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
-          duration: 0.85,
-          ease: "power4.inOut",
-        });
-
-        // Stagger links entrance
-        gsap.fromTo(
-          linksRef.current.filter(Boolean),
-          { y: 50, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.6, delay: 0.3, stagger: 0.1, ease: "power3.out" }
-        );
-      }
+      timelineRef.current?.play();
     } else {
-      // Close animation
-      gsap.killTweensOf([overlayRef.current, linksRef.current]);
-
-      if (prefersReducedMotion) {
-        gsap.to(overlayRef.current, {
-          opacity: 0,
-          duration: 0.2,
-          ease: "power2.in",
-          onComplete: () => {
-            gsap.set(overlayRef.current, { display: "none" });
-          },
-        });
-      } else {
-        // Wipe overlay upwards/outwards
-        gsap.to(overlayRef.current, {
-          clipPath: "polygon(0 0, 100% 0, 100% 0, 0 0)",
-          duration: 0.6,
-          ease: "power4.inOut",
-          onComplete: () => {
-            gsap.set(overlayRef.current, { display: "none" });
-          },
-        });
-      }
+      timelineRef.current?.reverse();
     }
   }, [isOpen]);
 
@@ -156,7 +156,8 @@ export default function NavMenuOverlay({ isOpen, onClose, activeSection }: NavMe
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 w-screen h-screen hidden flex-col justify-center items-center bg-background/97 backdrop-blur-md z-[999] overflow-hidden"
+      style={{ display: "none" }}
+      className="fixed inset-0 w-screen h-screen flex-col justify-center items-center bg-background/97 backdrop-blur-md z-[1001] overflow-hidden"
     >
       {/* Click outside target element to close */}
       <div className="absolute inset-0 z-0" onClick={onClose} />

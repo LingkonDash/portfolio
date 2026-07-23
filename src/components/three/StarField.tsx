@@ -12,10 +12,15 @@ type Star = {
   baseX: number;
   baseY: number;
   size: number;
+  baseSize: number;
   opacity: number;
+  baseOpacity: number;
   twinkle: number;
   phase: number;
   z: number;
+  layer: 0 | 1 | 2;
+  speed: number;
+  pointerWeight: number;
   oscX: number;
   oscY: number;
   driftRadius: number;
@@ -29,6 +34,15 @@ type NebulaBlob = {
   radius: number;
   accent: string;
   alpha: number;
+  pulsePhase: number;
+  isLarge: boolean;
+  driftStartX: number;
+  driftStartY: number;
+  driftTargetX: number;
+  driftTargetY: number;
+  driftStartTime: number;
+  driftDuration: number;
+  cache: HTMLCanvasElement | null;
 };
 
 const THEME_STAR_COLORS: Record<string, string> = {
@@ -41,15 +55,14 @@ const THEME_STAR_COLORS: Record<string, string> = {
 
 function getStarCount(width: number): number {
   const area = width * (window.innerHeight || 1000);
-  if (area > 1_200_000) return 260;
-  if (area > 700_000) return 200;
-  return 140;
+  if (area > 1_200_000) return 320;
+  if (area > 700_000) return 230;
+  return 160;
 }
 
 export default function StarField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const blobState = useRef<NebulaBlob[]>([]);
-  const cloudTimeline = useRef<gsap.core.Tween | null>(null);
   const { theme } = useTheme();
 
   const resolvedTheme = theme ?? "void";
@@ -82,12 +95,14 @@ export default function StarField() {
       const margin = Math.max(30, width * 0.03);
       const count = getStarCount(width);
       stars = Array.from({ length: count }, (_, index) => {
-        const layer = index % 3;
-        const baseSize = [1.2, 1.8, 2.6][layer];
-        const baseOpacity = [0.7, 0.5, 0.28][layer];
+        const layer = (index % 3) as 0 | 1 | 2;
+        const layerSize = [1.4, 0.95, 0.55];
+        const layerOpacity = [0.92, 0.56, 0.32];
+        const speed = [0.95, 0.65, 0.35][layer];
+        const pointerWeight = [0.34, 0.16, 0.05][layer];
         const x = margin + Math.random() * (width - margin * 2);
         const y = margin + Math.random() * (height - margin * 2);
-        const z = 0.55 + Math.random() * 0.45;
+        const z = 0.7 + Math.random() * 0.3;
         return {
           x,
           y,
@@ -95,48 +110,78 @@ export default function StarField() {
           originY: y,
           baseX: x,
           baseY: y,
-          size: baseSize * z,
-          opacity: baseOpacity,
+          size: layerSize[layer] * z,
+          baseSize: layerSize[layer],
+          opacity: layerOpacity[layer],
+          baseOpacity: layerOpacity[layer],
           twinkle: Math.random() * Math.PI * 2,
           phase: Math.random() * Math.PI * 2,
           z,
+          layer,
+          speed,
+          pointerWeight,
           oscX: Math.random() * Math.PI * 2,
           oscY: Math.random() * Math.PI * 2,
-          driftRadius: 10 + Math.random() * 24,
+          driftRadius: 14 + Math.random() * 18,
         };
       });
+    };
+
+    const initializeDrift = (blob: NebulaBlob, index: number, now: number) => {
+      const targetX = blob.isLarge
+        ? width * (0.08 + Math.random() * 0.84)
+        : Math.min(width - blob.radius, Math.max(blob.radius, blob.x + (Math.random() * 2 - 1) * width * 0.14));
+      const targetY = blob.isLarge
+        ? height * (0.08 + Math.random() * 0.84)
+        : Math.min(height - blob.radius, Math.max(blob.radius, blob.y + (Math.random() * 2 - 1) * height * 0.12));
+      const duration = (blob.isLarge ? 12 + Math.random() * 10 : 10 + Math.random() * 8) * 1000;
+      const delay = (0.6 + Math.random() * 2.0) * 1000;
+
+      blob.driftStartX = blob.x;
+      blob.driftStartY = blob.y;
+      blob.driftTargetX = targetX;
+      blob.driftTargetY = targetY;
+      blob.driftStartTime = now + delay;
+      blob.driftDuration = duration;
     };
 
     const buildNebula = () => {
       const warm = "#f2c28b";
       const cool = "#8bdcff";
       const colors = [accentColor, warm, cool];
-      const blobs: NebulaBlob[] = Array.from({ length: 3 }, (_, index) => {
-        const baseX = width * (0.18 + index * 0.25);
-        const baseY = height * (0.18 + index * 0.16);
-        const radius = width * (0.18 + index * 0.05);
+      const blobSizes = [0.24, 0.18, 0.14, 0.1, 0.08];
+      const blobAlphas = [0.16, 0.12, 0.11, 0.09, 0.08];
+      const blobs: NebulaBlob[] = Array.from({ length: 5 }, (_, index) => {
+        const baseX = width * (0.08 + index * 0.18 + Math.random() * 0.1);
+        const baseY = height * (0.12 + (index % 2 ? 0.35 : 0.15) + Math.random() * 0.18);
+        const radius = width * blobSizes[index];
+        const alpha = blobAlphas[index];
         return {
           baseX,
           baseY,
           x: baseX,
           y: baseY,
           radius,
-          accent: colors[index],
-          alpha: 0.18 + index * 0.07,
+          accent: colors[index % colors.length],
+          alpha,
+          pulsePhase: Math.random() * Math.PI * 2,
+          isLarge: index < 3,
+          driftStartX: baseX,
+          driftStartY: baseY,
+          driftTargetX: baseX,
+          driftTargetY: baseY,
+          driftStartTime: 0,
+          driftDuration: 0,
+          cache: null,
         };
       });
 
-      blobState.current = blobs;
-      cloudTimeline.current?.kill();
-      cloudTimeline.current = gsap.to(blobState.current, {
-        duration: 22,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        stagger: { each: 6, from: "center", amount: 14 },
-        x: (idx) => `+=${[32, -28, 34][idx % 3]}`,
-        y: (idx) => `+=${[-22, 18, -24][idx % 3]}`,
+      const now = performance.now();
+      blobs.forEach((blob, index) => {
+        initializeDrift(blob, index, now);
       });
+
+      blobState.current = blobs;
     };
 
     const resize = () => {
@@ -172,24 +217,61 @@ export default function StarField() {
       ctx.fillRect(0, 0, width, height);
 
       for (const blob of blobState.current) {
-        const x = blob.x;
-        const y = blob.y;
-        const radius = blob.radius;
-        const nebula = ctx.createRadialGradient(x, y, 0, x, y, radius);
-        nebula.addColorStop(0, `${blob.accent}${Math.round(blob.alpha * 255).toString(16).padStart(2, "0")}`);
-        nebula.addColorStop(0.4, `${blob.accent}16`);
-        nebula.addColorStop(1, "rgba(255,255,255,0)");
-        ctx.fillStyle = nebula;
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, Math.PI * 2);
-        ctx.fill();
+        if (!blob.cache) {
+          const blobCanvas = document.createElement("canvas");
+          const blobCtx = blobCanvas.getContext("2d");
+          if (!blobCtx) continue;
+
+          const size = Math.ceil(blob.radius * 2);
+          blobCanvas.width = size;
+          blobCanvas.height = size;
+
+          const center = blob.radius;
+          const cacheGradient = blobCtx.createRadialGradient(center, center, 0, center, center, blob.radius);
+          cacheGradient.addColorStop(0, `${blob.accent}${Math.round(blob.alpha * 255).toString(16).padStart(2, "0")}`);
+          cacheGradient.addColorStop(0.35, `${blob.accent}16`);
+          cacheGradient.addColorStop(1, "rgba(255,255,255,0)");
+
+          blobCtx.fillStyle = cacheGradient;
+          blobCtx.beginPath();
+          blobCtx.arc(center, center, blob.radius, 0, Math.PI * 2);
+          blobCtx.fill();
+
+          blob.cache = blobCanvas;
+        }
+
+        const now = time;
+        const driftElapsed = now - blob.driftStartTime;
+        if (driftElapsed >= blob.driftDuration) {
+          blob.x = blob.driftTargetX;
+          blob.y = blob.driftTargetY;
+          const index = blobState.current.indexOf(blob);
+          if (index !== -1) {
+            initializeDrift(blob, index, now);
+          }
+        } else if (driftElapsed > 0) {
+          const progress = Math.min(1, driftElapsed / blob.driftDuration);
+          const eased = 0.5 - 0.5 * Math.cos(Math.PI * progress);
+          blob.x = blob.driftStartX + (blob.driftTargetX - blob.driftStartX) * eased;
+          blob.y = blob.driftStartY + (blob.driftTargetY - blob.driftStartY) * eased;
+        }
+
+        const x = blob.x - blob.radius;
+        const y = blob.y - blob.radius;
+        if (blob.cache) {
+          const pulse = 0.94 + Math.sin(time * 0.00016 + blob.pulsePhase) * 0.08;
+          ctx.globalAlpha = blob.alpha * 0.88 * pulse;
+          ctx.drawImage(blob.cache, x, y);
+          ctx.globalAlpha = 1;
+        }
       }
 
       const pointerX = pointer.x * width;
       const pointerY = pointer.y * height;
       for (const star of stars) {
-        const baseX = star.originX + Math.sin(time * 0.00024 + star.oscX) * star.driftRadius;
-        const baseY = star.originY + Math.cos(time * 0.00026 + star.oscY) * star.driftRadius;
+        const driftTime = time * 0.0003 * star.speed;
+        const baseX = star.originX + Math.sin(driftTime + star.oscX) * star.driftRadius;
+        const baseY = star.originY + Math.cos(driftTime + star.oscY) * star.driftRadius;
 
         star.baseX = baseX;
         star.baseY = baseY;
@@ -197,20 +279,23 @@ export default function StarField() {
         const dx = pointerX - star.x;
         const dy = pointerY - star.y;
         const dist = Math.hypot(dx, dy);
-        const influenceRadius = 160;
+        const influenceRadius = 180;
 
-        if (pointer.active && dist < influenceRadius) {
-          const influence = (1 - dist / influenceRadius) * 0.24;
+        if (pointer.active && dist < influenceRadius && star.layer <= 1) {
+          const influence = (1 - dist / influenceRadius) * star.pointerWeight;
           star.x += dx * influence;
           star.y += dy * influence;
         } else {
-          star.x += (star.baseX - star.x) * 0.018;
-          star.y += (star.baseY - star.y) * 0.018;
+          star.x += (star.baseX - star.x) * (0.018 + star.speed * 0.0025);
+          star.y += (star.baseY - star.y) * (0.018 + star.speed * 0.0025);
         }
 
-        const twinkle = 0.75 + Math.sin(time * 0.0018 + star.phase) * 0.28 + Math.sin(time * 0.0012 + star.twinkle) * 0.18;
-        const alpha = Math.max(0.12, star.opacity * twinkle);
-        const size = star.size * (0.55 + star.z * 0.75);
+        const twinkle =
+          0.75 +
+          Math.sin(time * (0.0032 + star.speed * 0.00025) + star.phase) * 0.28 +
+          Math.sin(time * 0.0021 + star.twinkle) * 0.18;
+        const alpha = Math.max(0.1, star.opacity * twinkle);
+        const size = star.size * (0.85 + star.z * 0.6);
 
         ctx.beginPath();
         ctx.arc(star.x, star.y, size, 0, Math.PI * 2);
@@ -232,8 +317,6 @@ export default function StarField() {
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onPointerMove);
       window.removeEventListener("mouseleave", onPointerLeave);
-      cloudTimeline.current?.kill();
-      cloudTimeline.current = null;
     };
   }, [accentColor]);
 

@@ -166,9 +166,9 @@ export default function Skills({ skills }: { skills: Skill[] }) {
     <section
       id="skills"
       ref={containerRef}
-      className="py-16 md:py-24 border-t border-border/10 select-none overflow-hidden min-h-screen"
+      className="py-16 px-6 md:py-24 border-t border-border/10 select-none overflow-hidden"
     >
-      <div className="max-w-5xl mx-auto w-full px-4">
+      <div className="max-w-7xl mx-auto w-full px-4">
         <h2 className="text-2xl md:text-3xl font-black tracking-tight text-foreground mb-12 text-left">
           Skills & Technologies
         </h2>

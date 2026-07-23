@@ -178,14 +178,14 @@ export default function Hero() {
   }, []);
 
   const handleContactClick = () => {
-    scrollToSection("contact", { behavior: "smooth" });
+    scrollToSection("connect", { behavior: "smooth" });
   };
 
   return (
     <section
       id="hero"
       ref={containerRef}
-      className="min-h-[85vh] flex flex-col justify-center py-8 md:py-16 select-none"
+      className="min-h-[85vh] flex flex-col justify-center p-8 md:p-16 select-none"
     >
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center w-full">
         <div className="md:col-span-7 flex flex-col justify-center gap-6 order-2 md:order-1">
