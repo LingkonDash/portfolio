@@ -215,7 +215,7 @@ export default function Contact() {
             </div>
 
             {/* Social Links Row */}
-            <SocialLinks className="mt-2" />
+            <SocialLinks className="mt-2 hidden" />
           </div>
 
           {/* Right Column: Stepped Glassmorphic Form Card */}

@@ -14,7 +14,8 @@ export interface Project {
 export interface Skill {
   id: string;
   name: string;
-  icon: string;
+  iconUrl: string | null;
+  iconFallback: string;
   description: string;
   order: number;
 }

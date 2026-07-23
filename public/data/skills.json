@@ -2,77 +2,88 @@
   {
     "id": "html",
     "name": "HTML",
-    "icon": "FileCode",
+    "iconUrl": "https://cdn.simpleicons.org/html5/E34F26",
+    "iconFallback": "FileCode",
     "description": "I use HTML5 as the structural backbone of every project, focusing on semantic elements for accessibility, SEO, and maintainability. I ensure proper document hierarchy, optimized media handling, and clean, readable markup that integrates seamlessly with modern frameworks.",
     "order": 1
   },
   {
     "id": "css",
     "name": "CSS",
-    "icon": "Layout",
+    "iconUrl": "https://cdn.simpleicons.org/css3/1572B6",
+    "iconFallback": "Layout",
     "description": "I design responsive and scalable interfaces using modern CSS techniques like Flexbox, Grid, and custom properties. I focus on performance, reusability, and consistency, often combining CSS with utility-first approaches for rapid UI development.",
     "order": 2
   },
   {
     "id": "react",
     "name": "React",
-    "icon": "Code",
+    "iconUrl": "https://cdn.simpleicons.org/react/61DAFB",
+    "iconFallback": "Code",
     "description": "I build dynamic, component-driven interfaces with React, focusing on reusable logic through hooks and clean state management. I emphasize predictable data flow and performance-conscious rendering to keep applications fast as they scale.",
     "order": 3
   },
   {
     "id": "nextjs",
     "name": "Next.js",
-    "icon": "Globe",
+    "iconUrl": "https://cdn.simpleicons.org/nextdotjs/FFFFFF",
+    "iconFallback": "Globe",
     "description": "I use Next.js to build production-ready full-stack applications, leveraging server-side rendering, routing, and API routes to deliver fast, SEO-friendly experiences. I focus on structuring apps for scalability and maintainability from the start.",
     "order": 4
   },
   {
     "id": "nodejs",
     "name": "Node.js",
-    "icon": "Server",
+    "iconUrl": "https://cdn.simpleicons.org/nodedotjs/5FA04E",
+    "iconFallback": "Server",
     "description": "I use Node.js to build efficient, event-driven backend systems, handling asynchronous operations and server logic with a focus on performance and reliability under real-world load.",
     "order": 5
   },
   {
     "id": "expressjs",
     "name": "Express.js",
-    "icon": "Terminal",
+    "iconUrl": "https://cdn.simpleicons.org/express/FFFFFF",
+    "iconFallback": "Terminal",
     "description": "I structure RESTful APIs and backend architecture with Express.js, emphasizing clean routing, middleware design, and secure, maintainable server logic.",
     "order": 6
   },
   {
     "id": "mongodb",
     "name": "MongoDB",
-    "icon": "Database",
+    "iconUrl": "https://cdn.simpleicons.org/mongodb/47A248",
+    "iconFallback": "Database",
     "description": "I design flexible, scalable data models with MongoDB, focusing on efficient schema design and query performance to support real-world application needs.",
     "order": 7
   },
   {
     "id": "better-auth",
     "name": "better-auth",
-    "icon": "ShieldCheck",
+    "iconUrl": null,
+    "iconFallback": "ShieldCheck",
     "description": "I implement secure, modern authentication flows using better-auth, focusing on reliable session handling and a smooth, frictionless login experience for users.",
     "order": 8
   },
   {
     "id": "vercel",
     "name": "Vercel",
-    "icon": "TrendingUp",
+    "iconUrl": "https://cdn.simpleicons.org/vercel/FFFFFF",
+    "iconFallback": "TrendingUp",
     "description": "I deploy and manage full-stack applications on Vercel, taking advantage of its seamless CI/CD pipeline and edge infrastructure to ship fast, reliable production builds.",
     "order": 9
   },
   {
     "id": "vite",
     "name": "Vite",
-    "icon": "Zap",
+    "iconUrl": "https://cdn.simpleicons.org/vite/646CFF",
+    "iconFallback": "Zap",
     "description": "I use Vite for rapid local development, relying on its fast HMR and optimized build process to keep the development feedback loop tight.",
     "order": 10
   },
   {
     "id": "vs-code",
     "name": "VS Code",
-    "icon": "Settings",
+    "iconUrl": "https://cdn.simpleicons.org/visualstudiocode/007ACC",
+    "iconFallback": "Settings",
     "description": "I rely on VS Code as my primary development environment, customizing it with extensions and workflows that keep my coding process efficient and organized.",
     "order": 11
   }
