@@ -66,7 +66,10 @@ export default function StarField() {
   const { theme } = useTheme();
 
   const resolvedTheme = theme ?? "void";
-  const accentColor = THEME_STAR_COLORS[resolvedTheme] ?? THEME_STAR_COLORS.void;
+  const accentColor =
+    typeof window !== "undefined"
+      ? getComputedStyle(document.documentElement).getPropertyValue("--color-accent").trim() || (THEME_STAR_COLORS[resolvedTheme] ?? THEME_STAR_COLORS.void)
+      : THEME_STAR_COLORS[resolvedTheme] ?? THEME_STAR_COLORS.void;
 
   const colorStops = useMemo(() => {
     const accent = accentColor;
@@ -149,8 +152,8 @@ export default function StarField() {
       const warm = "#f2c28b";
       const cool = "#8bdcff";
       const colors = [accentColor, warm, cool];
-      const blobSizes = [0.24, 0.18, 0.14, 0.1, 0.08];
-      const blobAlphas = [0.16, 0.12, 0.11, 0.09, 0.08];
+      const blobSizes = [0.34, 0.24, 0.18, 0.12, 0.08];
+      const blobAlphas = [0.40, 0.32, 0.28, 0.22, 0.18];
       const blobs: NebulaBlob[] = Array.from({ length: 5 }, (_, index) => {
         const baseX = width * (0.08 + index * 0.18 + Math.random() * 0.1);
         const baseY = height * (0.12 + (index % 2 ? 0.35 : 0.15) + Math.random() * 0.18);
@@ -208,12 +211,7 @@ export default function StarField() {
 
     const render = (time: number) => {
       ctx.clearRect(0, 0, width, height);
-
-      const gradient = ctx.createRadialGradient(width * 0.5, height * 0.2, 0, width * 0.5, height * 0.2, width * 0.8);
-      gradient.addColorStop(0, `${accentColor}20`);
-      gradient.addColorStop(0.35, "rgba(3, 5, 10, 0.72)");
-      gradient.addColorStop(1, "rgba(2, 3, 8, 1)");
-      ctx.fillStyle = gradient;
+      ctx.fillStyle = "rgba(2, 3, 8, 1)";
       ctx.fillRect(0, 0, width, height);
 
       for (const blob of blobState.current) {
@@ -229,7 +227,7 @@ export default function StarField() {
           const center = blob.radius;
           const cacheGradient = blobCtx.createRadialGradient(center, center, 0, center, center, blob.radius);
           cacheGradient.addColorStop(0, `${blob.accent}${Math.round(blob.alpha * 255).toString(16).padStart(2, "0")}`);
-          cacheGradient.addColorStop(0.35, `${blob.accent}16`);
+          cacheGradient.addColorStop(0.35, `${blob.accent}65`);
           cacheGradient.addColorStop(1, "rgba(255,255,255,0)");
 
           blobCtx.fillStyle = cacheGradient;
@@ -260,7 +258,7 @@ export default function StarField() {
         const y = blob.y - blob.radius;
         if (blob.cache) {
           const pulse = 0.94 + Math.sin(time * 0.00016 + blob.pulsePhase) * 0.08;
-          ctx.globalAlpha = blob.alpha * 0.88 * pulse;
+          ctx.globalAlpha = blob.alpha * pulse;
           ctx.drawImage(blob.cache, x, y);
           ctx.globalAlpha = 1;
         }
