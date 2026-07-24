@@ -8,6 +8,7 @@ export interface Project {
   liveUrl: string | null;
   repoUrl: string | null;
   images: string[];
+  techStack: string[];
   order: number;
 }
 

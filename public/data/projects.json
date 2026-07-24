@@ -1,27 +1,55 @@
 [
   {
     "slug": "recipe-hut",
-    "number": "01",
+    "number": "02",
     "title": "Recipe Hut",
     "iconKey": "recipe-hut",
     "description": "AI-powered recipe discovery and cooking platform built as a complete Agentic AI application. Beyond standard CRUD and content browsing, it integrates two distinct agentic AI systems — a context-aware conversational assistant and a reasoning-driven pantry agent — that go beyond simple text generation to demonstrate memory, tool use, and decision-making. An intelligent cooking assistant with AI chat, recipe insights, and interactive guidance.",
     "longDescription": "Recipe Hut is a production-grade Agentic AI application built for recipe discovery and guided cooking experiences. It goes well beyond a standard CRUD platform by embedding two distinct AI agent systems into the core product: a context-aware conversational assistant that maintains session memory and adapts to user preferences, and a reasoning-driven pantry agent that uses tool-calling and multi-step decision-making to suggest recipes based on what ingredients are available. Together, these agents demonstrate practical implementations of memory, tool use, and autonomous decision-making within a real-world full-stack application. The platform also features a rich content browsing experience, recipe insights, and interactive step-by-step cooking guidance — all delivered with a polished, user-first interface.",
-    "liveUrl": null,
-    "repoUrl": null,
-    "images": [],
-    "order": 1
+    "liveUrl": "https://recipe-hut.vercel.app/explore",
+    "repoUrl": "https://github.com/LingkonDash/recipe-hut",
+    "images": [
+      "https://i.ibb.co.com/HT7PLnsv/swappy-20260724-224536.png",
+      "https://i.ibb.co.com/TMwDP3b8/swappy-20260725-021335.png",
+      "https://i.ibb.co.com/tpM5vXB3/swappy-20260725-021524.png",
+      "https://i.ibb.co.com/BKTJ7H4c/swappy-20260725-021410.png"
+    ],
+    "techStack": [
+      "Next.js",
+      "TypeScript",
+      "Tailwind CSS",
+      "Html",
+      "MongoDB",
+      "Groq API",
+      "Gemini API",
+      "Vercel"
+    ],
+    "order": 2
   },
   {
     "slug": "book-hub",
-    "number": "02",
+    "number": "01",
     "title": "Book Hub",
     "iconKey": "book-hub",
     "description": "BookHub is a full-stack Online Book Delivery Management System where readers can browse a curated library, pay a delivery fee via Stripe, and have physical books delivered to their doorstep. Librarians manage their book listings and track delivery statuses. Admins oversee the entire platform — approving books, managing users, and monitoring transactions.",
     "longDescription": "Book Hub is a full-stack Online Book Delivery Management System designed around three distinct user roles. Readers can browse a curated library, view book details, and check out using Stripe-powered payments, with physical books delivered directly to their address. Librarians have a dedicated dashboard to list and manage their own book inventory, update availability, and track the delivery status of each order in real time. Admins control the entire platform — reviewing and approving book submissions, managing user accounts across all roles, and monitoring transactions and fulfillment statuses. The system is built to handle real-world logistics with a clean, maintainable codebase across both frontend and backend.",
-    "liveUrl": null,
-    "repoUrl": null,
-    "images": [],
-    "order": 2
+    "liveUrl": "https://book-hub-liart.vercel.app/",
+    "repoUrl": "https://github.com/LingkonDash/book-hub",
+    "images": [
+      "https://i.ibb.co.com/v6Jf66L7/Screenshot-2026-06-26-230829.png",
+      "https://i.ibb.co.com/kgtmkCFV/librarian-dashboard.png",
+      "https://i.ibb.co.com/gZJJ03m8/admin-dashboard.png"
+    ],
+    "techStack": [
+      "Next.js",
+      "TypeScript",
+      "Tailwind CSS",
+      "Html",
+      "MongoDB",
+      "Stripe API",
+      "Vercel"
+    ],
+    "order": 1
   },
   {
     "slug": "space-sync",
@@ -30,9 +58,21 @@
     "iconKey": "space-sync",
     "description": "SpaceSync is a full-stack co-working and event space booking platform where renters discover and book desks, meeting rooms, event halls, and studios — and hosts list and manage their own spaces. Built with a strict three-role system (User, Host, Admin), server-driven filtering, and a fully typed TypeScript stack across both frontend and backend.",
     "longDescription": "Space Sync is a full-stack co-working and event space booking platform built around a strict three-role system: Users, Hosts, and Admins. Users can discover and book a variety of spaces — including hot desks, private meeting rooms, event halls, and recording studios — using server-driven search and filtering to find exactly what they need. Hosts get a full management interface to list their spaces, set pricing and availability, and track bookings in real time. Admins oversee the entire platform, handling approvals, dispute resolution, and analytics. The application is built with a fully typed TypeScript stack across both frontend and backend, delivering a reliable, scalable, and maintainable foundation for a marketplace-class product.",
-    "liveUrl": null,
-    "repoUrl": null,
-    "images": [],
+    "liveUrl": "https://space-sync-alpha.vercel.app/",
+    "repoUrl": "https://github.com/LingkonDash/space-sync",
+    "images": [
+      "https://i.ibb.co.com/rRxyZXCP/swappy-20260724-224715.png",
+      "https://i.ibb.co.com/qLGhj5n9/swappy-20260725-021543.png"
+    ],
+    "techStack": [
+      "Next.js",
+      "JavaScript",
+      "Tailwind CSS",
+      "Html",
+      "MongoDB",
+      "Stripe API",
+      "Vercel"
+    ],
     "order": 3
   }
 ]

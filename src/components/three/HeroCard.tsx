@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 
@@ -120,23 +121,14 @@ export default function HeroCard() {
           className="absolute -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-accent rounded-full pointer-events-none filter blur-2xl opacity-0 transition-opacity"
         />
 
-        {/* 
-          TODO: Replace this placeholder with the actual developer image.
-          Example layout:
+        <div className="absolute inset-0">
           <Image
             src="/images/avatar.jpg"
             alt="Lingkon Dash"
             fill
+            sizes="(max-width: 420px) 90vw, 420px"
             className="object-cover rounded-2xl pointer-events-none"
           />
-        */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 select-none pointer-events-none z-10">
-          <div className="w-20 h-20 rounded-full border border-accent/35 flex items-center justify-center text-accent text-3xl font-extrabold tracking-tighter bg-accent/5 backdrop-blur-sm shadow-[0_0_15px_var(--color-accent)/0.1]">
-            LD
-          </div>
-          <p className="text-xs font-mono uppercase tracking-widest text-muted/70">
-            [ Developer Photo ]
-          </p>
         </div>
 
         {/* Abstract space wireframes */}

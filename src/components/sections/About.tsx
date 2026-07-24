@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -12,6 +13,7 @@ gsap.registerPlugin(ScrollTrigger);
 export default function About() {
   const containerRef = useRef<HTMLDivElement>(null);
   const photoRef = useRef<HTMLDivElement>(null);
+  const photoRingRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const listItemsRef = useRef<HTMLDivElement>(null);
 
@@ -20,6 +22,8 @@ export default function About() {
 
     // Organic shape blob slow float animation
     let floatTween: gsap.core.Tween;
+    let ringRotateTween: gsap.core.Tween;
+
     if (!prefersReducedMotion && photoRef.current) {
       const innerBlob = photoRef.current.querySelector(".organic-blob");
       if (innerBlob) {
@@ -32,6 +36,16 @@ export default function About() {
           ease: "power1.inOut",
         });
       }
+    }
+
+    if (!prefersReducedMotion && photoRingRef.current) {
+      ringRotateTween = gsap.to(photoRingRef.current, {
+        rotate: 360,
+        duration: 28,
+        repeat: -1,
+        ease: "none",
+        transformOrigin: "50% 50%",
+      });
     }
 
     // Scroll Trigger reveals
@@ -94,6 +108,7 @@ export default function About() {
 
     return () => {
       if (floatTween) floatTween.kill();
+      if (ringRotateTween) ringRotateTween.kill();
       triggers.forEach((t) => t.kill());
     };
   }, []);
@@ -112,29 +127,24 @@ export default function About() {
         >
           <div
             data-cursor="card"
-            className="organic-blob relative w-64 h-64 md:w-80 md:h-80 bg-background-elevated/30 border-2 border-dashed border-accent/40 rounded-[30%_70%_70%_30%_/_30%_30%_70%_70%] overflow-hidden flex flex-col items-center justify-center shadow-2xl transition-colors duration-300"
+            className="organic-blob relative w-64 h-64 md:w-80 md:h-80 bg-background-elevated/30 border-2 border-dashed border-accent/40 rounded-[30%_70%_70%_30%_/_30%_30%_70%_70%] overflow-hidden shadow-2xl transition-colors duration-300"
           >
-            {/* 
-              TODO: Replace this placeholder with the actual developer image.
-              Example layout:
+            <div className="absolute inset-0">
               <Image
-                src="/images/about-avatar.jpg"
-                alt="Lingkon Dash Profile"
+                src="/images/avatar3.jpg"
+                alt="Lingkon Dash portrait"
                 fill
+                sizes="(max-width: 640px) 85vw, 400px"
                 className="object-cover rounded-[30%_70%_70%_30%_/_30%_30%_70%_70%] pointer-events-none"
               />
-            */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 select-none pointer-events-none z-10">
-              <span className="text-4xl font-extrabold tracking-tighter text-accent/80">
-                LD
-              </span>
-              <p className="text-[10px] font-mono uppercase tracking-widest text-muted/60">
-                [ Profile Picture ]
-              </p>
             </div>
-            
-            {/* Abstract radial gradient */}
-            <div className="absolute inset-0 bg-radial from-accent/5 via-transparent to-transparent pointer-events-none" />
+
+            <div
+              ref={photoRingRef}
+              className="absolute inset-0 rounded-[30%_70%_70%_30%_/_30%_30%_70%_70%] border border-dashed border-accent/40 pointer-events-none"
+            />
+
+            <div className="absolute inset-0 bg-radial from-accent/8 via-transparent to-transparent opacity-30 pointer-events-none" />
           </div>
         </div>
 
@@ -144,7 +154,7 @@ export default function About() {
             About Me
           </h2>
 
-          <div className="flex flex-col gap-4 text-sm md:text-base text-foreground/80 leading-relaxed font-sans">
+          <div className="flex flex-col gap-6 text-base md:text-lg text-foreground/90 leading-loose font-sans">
             <p className="reveal-text opacity-0">
               Hi, I'm Lingkon Dash. I am a passionate Full Stack Web Developer with hands-on experience building scalable, user-friendly web applications using MongoDB, Express.js, Next.js, and Node.js. My focus is on writing clean, maintainable code and crafting intuitive, user-centric interfaces.
             </p>
@@ -155,45 +165,48 @@ export default function About() {
           </div>
 
           {/* List items block */}
-          <div ref={listItemsRef} className="flex flex-col gap-4 mt-2">
-            <h3 className="text-xs font-mono uppercase tracking-wider text-accent font-bold">
+          <div ref={listItemsRef} className="flex flex-col gap-5 mt-4">
+            <h3 className="text-sm md:text-[0.88rem] font-mono uppercase tracking-wider text-accent font-bold">
               What I bring to the table:
             </h3>
 
-            <div className="grid grid-cols-1 gap-3 font-sans">
+            <div className="grid grid-cols-1 gap-4 font-sans">
               {/* Bullet 1 */}
-              <div className="reveal-item flex gap-3 items-start text-sm text-foreground/80 opacity-0">
-                <div className="mt-0.5 p-1 rounded bg-accent/10 text-accent">
-                  <Code size={16} />
+              <div className="reveal-item flex gap-3 items-start text-base text-foreground/90 opacity-0">
+                <div className="mt-0.5 p-2 rounded-2xl bg-accent/10 text-accent shadow-[0_0_12px_rgba(56,189,248,0.11)]">
+                  <Code size={18} />
                 </div>
-                <div>
-                  <strong className="text-foreground">Frontend Development:</strong> Building dynamic, responsive user interfaces with React and Tailwind CSS.
+                <div className="leading-relaxed">
+                  <strong className="text-foreground font-semibold">Frontend Development:</strong>{" "}
+                  Building dynamic, responsive user interfaces with React and Tailwind CSS.
                 </div>
               </div>
 
               {/* Bullet 2 */}
-              <div className="reveal-item flex gap-3 items-start text-sm text-foreground/80 opacity-0">
-                <div className="mt-0.5 p-1 rounded bg-accent/10 text-accent">
-                  <Terminal size={16} />
+              <div className="reveal-item flex gap-3 items-start text-base text-foreground/90 opacity-0">
+                <div className="mt-0.5 p-2 rounded-2xl bg-accent/10 text-accent shadow-[0_0_12px_rgba(56,189,248,0.11)]">
+                  <Terminal size={18} />
                 </div>
-                <div>
-                  <strong className="text-foreground">JavaScript & Problem-Solving:</strong> Sharpening my logic through consistent practice on LeetCode.
+                <div className="leading-relaxed">
+                  <strong className="text-foreground font-semibold">JavaScript & Problem-Solving:</strong>{" "}
+                  Sharpening my logic through consistent practice on LeetCode.
                 </div>
               </div>
 
               {/* Bullet 3 */}
-              <div className="reveal-item flex gap-3 items-start text-sm text-foreground/80 opacity-0">
-                <div className="mt-0.5 p-1 rounded bg-accent/10 text-accent">
-                  <Database size={16} />
+              <div className="reveal-item flex gap-3 items-start text-base text-foreground/90 opacity-0">
+                <div className="mt-0.5 p-2 rounded-2xl bg-accent/10 text-accent shadow-[0_0_12px_rgba(56,189,248,0.11)]">
+                  <Database size={18} />
                 </div>
-                <div>
-                  <strong className="text-foreground">Backend Fundamentals:</strong> Working with Node.js, Express, and MongoDB to power full-stack applications.
+                <div className="leading-relaxed">
+                  <strong className="text-foreground font-semibold">Backend Fundamentals:</strong>{" "}
+                  Working with Node.js, Express, and MongoDB to power full-stack applications.
                 </div>
               </div>
             </div>
           </div>
 
-          <p className="reveal-text text-sm md:text-base text-foreground/80 leading-relaxed font-sans mt-2 opacity-0">
+          <p className="reveal-text text-base md:text-lg text-foreground/90 leading-loose font-sans mt-4 opacity-0">
             I have recently completed my learning journey and worked on several production-level projects. I am highly motivated, disciplined, and currently open for work — looking for remote frontend or junior/mid-level full-stack roles where I can grow, contribute, and build impactful web projects.
           </p>
         </div>

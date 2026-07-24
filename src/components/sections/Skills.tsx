@@ -143,7 +143,7 @@ export default function Skills({ skills }: { skills: CategorizedSkill[] }) {
         </h2>
 
         {/* Category filters */}
-        <div className="flex flex-wrap gap-2 mb-10">
+        <div className="flex flex-wrap gap-3 mb-10">
           {filters.map((filter) => {
             const isActive = activeFilter === filter.key;
             return (
@@ -151,16 +151,11 @@ export default function Skills({ skills }: { skills: CategorizedSkill[] }) {
                 key={filter.key}
                 type="button"
                 onClick={() => setActiveFilter(filter.key)}
-                className="px-4 py-2 rounded-full text-sm font-semibold transition-colors border"
-                style={{
-                  borderColor: isActive
-                    ? "var(--color-accent)"
-                    : "color-mix(in srgb, var(--color-border) 30%, transparent)",
-                  backgroundColor: isActive
-                    ? "color-mix(in srgb, var(--color-accent) 15%, transparent)"
-                    : "color-mix(in srgb, var(--color-background-elevated) 25%, transparent)",
-                  color: isActive ? "var(--color-accent)" : "var(--color-foreground)",
-                }}
+                className={`px-4 py-2 rounded-full text-sm md:text-sm font-semibold tracking-wide transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 ${
+                  isActive
+                    ? "border border-accent bg-accent/15 text-accent shadow-[0_0_0_1px_rgba(56,189,248,0.35)]"
+                    : "border border-border/30 bg-background-elevated/30 text-foreground hover:border-accent/40 hover:bg-accent/10"
+                }`}
               >
                 {filter.label}
               </button>
@@ -175,18 +170,13 @@ export default function Skills({ skills }: { skills: CategorizedSkill[] }) {
             return (
               <div
                 key={skill.id}
-                className="group flex flex-col items-center justify-center gap-3 rounded-2xl border p-5 text-center backdrop-blur-md transition-transform duration-300 hover:-translate-y-1"
-                style={{
-                  borderColor: "color-mix(in srgb, var(--color-border) 18%, transparent)",
-                  backgroundColor: "color-mix(in srgb, var(--color-background-elevated) 10%, transparent)",
-                }}
+                className="group relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-[2rem] border border-border/20 bg-background-elevated/15 p-5 text-center backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-accent/30 hover:bg-background-elevated/40 hover:shadow-[0_0_40px_rgba(56,189,248,0.14)]"
               >
-                <Icon
-                  size={34}
-                  style={{ color: "var(--color-accent)" }}
-                  className="transition-transform duration-300 group-hover:scale-110"
-                />
-                <span className="text-sm font-semibold tracking-tight text-foreground">
+                <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-accent/10 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
+                <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10 text-accent shadow-[0_0_24px_rgba(56,189,248,0.16)] border border-accent/20">
+                  <Icon size={24} />
+                </div>
+                <span className="relative z-10 text-base font-semibold tracking-tight text-foreground">
                   {skill.name}
                 </span>
               </div>

@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ExternalLink, GitBranch } from "lucide-react";
 import { Project } from "@/types/data";
 import { projectIcons } from "@/lib/project-icons";
 import { ANIM_CONFIG } from "@/lib/animation-config";
@@ -102,7 +103,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
       pathEl.setAttribute("d", d);
 
       // Kick the ship to path origin before animation starts
-      gsap.set(ship, { x: w * 0.5, y: 0 });
+      gsap.set(ship, { x: w * 0.5, y: 0, rotation: 0, transformOrigin: "50% 50%" });
 
       const shipTween = gsap.to(ship, {
         motionPath: {
@@ -116,7 +117,8 @@ export default function Projects({ projects }: { projects: Project[] }) {
           trigger: section,
           start: "top center",
           end: "bottom center",
-          scrub: 1.5,
+          scrub: 0.7,
+          invalidateOnRefresh: true,
         },
       });
       tweens.push(shipTween);
@@ -128,6 +130,8 @@ export default function Projects({ projects }: { projects: Project[] }) {
       tweens.forEach((t) => t.kill());
     };
   }, []);
+
+  const sortedProjects = [...projects].sort((a, b) => a.order - b.order);
 
   return (
     <section
@@ -192,7 +196,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
 
           {/* ── Project entries ──────────────────────────────────────────── */}
           <div className="relative z-10 flex flex-col gap-20 md:gap-28">
-            {projects.map((project, i) => {
+            {sortedProjects.map((project, i) => {
               const Icon = projectIcons[project.iconKey];
               // Even index (0, 2): description LEFT | image RIGHT
               // Odd index  (1):    image LEFT       | description RIGHT
@@ -204,10 +208,63 @@ export default function Projects({ projects }: { projects: Project[] }) {
                   ref={(el) => {
                     entryRefs.current[i] = el;
                   }}
-                  // Mobile: single column — pad left to clear the connector line
-                  // Desktop: two columns — normal gap layout
+                  // Mobile: single column — image first, then text.
+                  // Desktop: two columns — alternate layout.
                   className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center pl-8 lg:pl-0"
                 >
+                  {/* ── Image column on mobile first, desktop order alternates. */}
+                  <div
+                    className={`project-image group ${
+                      isEven ? "md:order-2" : "md:order-1"
+                    }`}
+                  >
+                    <div className="relative aspect-video rounded-2xl overflow-hidden border border-border/40 bg-background-elevated/30 shadow-2xl">
+                      <Image
+                        src={project.images[0]}
+                        alt={`${project.title} preview`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        priority={i === 0}
+                      />
+
+                      <div className="absolute inset-0 bg-slate-950/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                      <div className="absolute inset-0 flex items-end justify-center p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                        <div className="w-full rounded-3xl border border-white/10 bg-background-elevated/80 backdrop-blur-xl px-4 py-4 shadow-2xl shadow-black/20">
+                          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                            {project.liveUrl && (
+                              <a
+                                href={project.liveUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-accent/20 hover:border-accent/60"
+                              >
+                                <ExternalLink size={16} />
+                                Live demo
+                              </a>
+                            )}
+                            {project.repoUrl && (
+                              <a
+                                href={project.repoUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border/40 bg-background/90 px-4 py-2 text-sm font-semibold text-foreground transition hover:border-accent/50 hover:bg-accent/10"
+                              >
+                                <GitBranch size={16} />
+                                GitHub
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div
+                        aria-hidden="true"
+                        className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background-elevated/40 to-transparent pointer-events-none"
+                      />
+                    </div>
+                  </div>
+
                   {/* ── Text column ─────────────────────────────────────── */}
                   <div
                     className={`project-text flex flex-col gap-5 ${
@@ -229,6 +286,17 @@ export default function Projects({ projects }: { projects: Project[] }) {
                       {project.description}
                     </p>
 
+                    <div className="flex flex-wrap gap-2">
+                      {project.techStack.map((tech) => (
+                        <span
+                          key={tech}
+                          className="inline-flex items-center rounded-full border border-accent/25 bg-accent/15 px-3 py-1 text-[11px] font-semibold text-accent"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+
                     {/* CTA — routes to detail page (Phase 12). 404 until then by design. */}
                     <div>
                       <Link
@@ -242,60 +310,6 @@ export default function Projects({ projects }: { projects: Project[] }) {
                           className="transition-transform duration-200 group-hover:translate-x-1"
                         />
                       </Link>
-                    </div>
-                  </div>
-
-                  {/* ── Image placeholder column ─────────────────────────── */}
-                  <div
-                    className={`project-image ${
-                      isEven ? "md:order-2" : "md:order-1"
-                    }`}
-                  >
-                    <div className="relative aspect-video rounded-2xl overflow-hidden border border-border/40 bg-background-elevated/30 flex items-center justify-center shadow-2xl">
-                      {/*
-                        TODO: Replace this placeholder with the actual project screenshot.
-                        Usage once the image file is available:
-
-                        import Image from "next/image";
-                        <Image
-                          src={`/images/projects/${project.slug}.jpg`}
-                          alt={`${project.title} screenshot`}
-                          fill
-                          className="object-cover"
-                          priority={i === 0}
-                        />
-                      */}
-
-                      {/* Watermark project number */}
-                      <span
-                        aria-hidden="true"
-                        className="absolute font-black text-foreground/[0.04] select-none pointer-events-none leading-none tracking-tighter"
-                        style={{ fontSize: "clamp(5rem, 18vw, 11rem)" }}
-                      >
-                        {project.number}
-                      </span>
-
-                      {/* Centered icon group */}
-                      <div className="relative z-10 flex flex-col items-center gap-3">
-                        <div className="p-4 rounded-2xl bg-accent/10 border border-accent/20 text-accent/75">
-                          <Icon size={30} strokeWidth={1.5} />
-                        </div>
-                        <span className="text-[10px] font-mono uppercase tracking-widest text-muted/40">
-                          {project.title}
-                        </span>
-                      </div>
-
-                      {/* Subtle grid overlay */}
-                      <div
-                        aria-hidden="true"
-                        className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:18px_18px] pointer-events-none"
-                      />
-
-                      {/* Bottom gradient fade */}
-                      <div
-                        aria-hidden="true"
-                        className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background-elevated/40 to-transparent pointer-events-none"
-                      />
                     </div>
                   </div>
                 </div>
