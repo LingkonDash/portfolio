@@ -6,6 +6,7 @@ import AppLoader from "@/components/AppLoader";
 import StarBackground from "@/components/sections/StarBackground";
 import Navbar from "@/components/sections/Navbar";
 import InitialScrollReset from "@/components/InitialScrollReset";
+import BackToTopButton from "@/components/ui/BackToTopButton";
 import "./globals.css";
 
 // TODO: Swap in a custom font here if desired.
@@ -66,6 +67,7 @@ export default function RootLayout({
           <AppLoader>
             {children}
           </AppLoader>
+          <BackToTopButton />
         </ThemeProvider>
       </body>
     </html>
