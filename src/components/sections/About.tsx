@@ -117,7 +117,7 @@ export default function About() {
     <section
       id="about"
       ref={containerRef}
-      className="py-16 px-8 md:py-24 max-w-4xl mx-auto w-full flex flex-col justify-center border-t border-border/10 select-none"
+      className="py-16 px-6 md:py-24 max-w-4xl mx-auto w-full flex flex-col justify-center border-t border-border/10 select-none"
     >
       <div className="grid grid-cols-1 gap-12 items-center w-full">
         {/* Profile photo centered at top */}

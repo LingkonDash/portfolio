@@ -11,6 +11,9 @@ import { Project } from "@/types/data";
 import { projectIcons } from "@/lib/project-icons";
 import { ANIM_CONFIG } from "@/lib/animation-config";
 
+// NOTE: MotionPathPlugin is registered but no longer used for the ship's
+// motion (see the manual position/rotation logic below) — kept registered
+// in case anything else in the app relies on it being globally available.
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
 // ─── Content is now imported from @/lib/projects ─────────────────────────────
@@ -22,6 +25,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
   const shipRef = useRef<SVGGElement>(null);
+  const sparksGroupRef = useRef<SVGGElement>(null);
   const entryRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
@@ -81,10 +85,11 @@ export default function Projects({ projects }: { projects: Project[] }) {
       stTriggers.push(st);
     });
 
-    // ── 2. Spaceship MotionPath (desktop fine-pointer, no reduced motion) ──────
+    // ── 2. Spaceship: manual path-follow with scroll-direction-aware facing ────
     const svg = svgRef.current;
     const pathEl = pathRef.current;
     const ship = shipRef.current;
+    const sparksGroup = sparksGroupRef.current;
 
     if (isFinePointer && !prefersReducedMotion && svg && pathEl && ship) {
       // Measure content area (section might be taller than viewport)
@@ -102,32 +107,129 @@ export default function Projects({ projects }: { projects: Project[] }) {
         `C ${w * 0.82} ${h * 0.33}, ${w * 0.18} ${h * 0.66}, ${w * 0.5} ${h}`;
       pathEl.setAttribute("d", d);
 
-      // Kick the ship to path origin before animation starts
-      gsap.set(ship, { x: w * 0.5, y: 0, rotation: 0, transformOrigin: "50% 50%" });
+      const totalLength = pathEl.getTotalLength();
 
-      const shipTween = gsap.to(ship, {
-        motionPath: {
-          path: pathEl,
-          align: pathEl,
-          alignOrigin: [0.5, 0.5],
-          autoRotate: true,
-        },
-        ease: "none",
-        scrollTrigger: {
-          trigger: section,
-          start: "top center",
-          end: "bottom center",
-          scrub: 0.7,
-          invalidateOnRefresh: true,
+      // The ship polygon's neutral artwork points UP (tip at negative-y).
+      // atan2(dy, dx) treats angle 0 as pointing RIGHT (+x), and since SVG's
+      // y-axis increases downward, positive rotation is clockwise. An
+      // "up-facing" shape sits at -90° in that system, so to align the nose
+      // with a tangent angle `a`, we need to rotate it by (a + 90).
+      const BASE_OFFSET = 90;
+
+      let prevProgress = 0;
+      let lastSparkTime = 0;
+
+      // Reusable helper: get {x, y} plus a forward direction vector at a
+      // given progress (0–1) along the path, using a small forward/backward
+      // sample window clamped to the path's bounds.
+      const sampleAt = (progress: number) => {
+        const len = progress * totalLength;
+        const eps = Math.max(totalLength * 0.01, 1);
+        const l1 = Math.max(0, len - eps);
+        const l2 = Math.min(totalLength, len + eps);
+        const p1 = pathEl.getPointAtLength(l1);
+        const p2 = pathEl.getPointAtLength(l2);
+        const point = pathEl.getPointAtLength(len);
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const mag = Math.hypot(dx, dy) || 1;
+        return {
+          x: point.x,
+          y: point.y,
+          dirX: dx / mag,
+          dirY: dy / mag,
+        };
+      };
+
+      // Spawn a single spark particle at the ship's tail, only ever called
+      // while the ship is actively moving (see onUpdate below).
+      const spawnSpark = (
+        shipX: number,
+        shipY: number,
+        facingX: number,
+        facingY: number
+      ) => {
+        if (!sparksGroup) return;
+        const tailOffset = 9;
+        const tailX = shipX - facingX * tailOffset;
+        const tailY = shipY - facingY * tailOffset;
+
+        const spark = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        spark.setAttribute("r", "1.6");
+        spark.setAttribute("fill", "var(--color-accent)");
+        spark.setAttribute("opacity", "0.85");
+        spark.setAttribute("cx", String(tailX));
+        spark.setAttribute("cy", String(tailY));
+        sparksGroup.appendChild(spark);
+
+        // Jittered drift backward + sideways, fading and shrinking out.
+        const jitter = (Math.random() - 0.5) * 14;
+        gsap.to(spark, {
+          attr: {
+            cx: tailX - facingX * (16 + Math.random() * 10) + jitter,
+            cy: tailY - facingY * (16 + Math.random() * 10) + jitter,
+            r: 0.2,
+          },
+          opacity: 0,
+          duration: 0.5 + Math.random() * 0.25,
+          ease: "power1.out",
+          onComplete: () => {
+            spark.remove();
+          },
+        });
+      };
+
+      // Set initial ship position/rotation before scroll begins.
+      const initial = sampleAt(0);
+      gsap.set(ship, {
+        x: initial.x,
+        y: initial.y,
+        rotation: Math.atan2(initial.dirY, initial.dirX) * (180 / Math.PI) + BASE_OFFSET,
+        transformOrigin: "50% 50%",
+      });
+
+      const st = ScrollTrigger.create({
+        trigger: section,
+        start: "top center",
+        end: "bottom center",
+        scrub: 0.7,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          const progress = self.progress;
+          const movingBackward = progress < prevProgress;
+          const delta = Math.abs(progress - prevProgress);
+          prevProgress = progress;
+
+          const { x, y, dirX, dirY } = sampleAt(progress);
+
+          // Facing direction: forward tangent normally, flipped 180° when
+          // the user is scrolling back up the page.
+          const facingX = movingBackward ? -dirX : dirX;
+          const facingY = movingBackward ? -dirY : dirY;
+          const tangentAngle = Math.atan2(dirY, dirX) * (180 / Math.PI);
+          const rotation = tangentAngle + BASE_OFFSET + (movingBackward ? 180 : 0);
+
+          gsap.set(ship, { x, y, rotation });
+
+          // Only spark while there's meaningful movement, throttled so we
+          // don't spawn a particle on every single scrub tick.
+          if (delta > 0.0002) {
+            const now = performance.now();
+            if (now - lastSparkTime > 70) {
+              lastSparkTime = now;
+              spawnSpark(x, y, facingX, facingY);
+            }
+          }
         },
       });
-      tweens.push(shipTween);
-      if (shipTween.scrollTrigger) stTriggers.push(shipTween.scrollTrigger);
+      stTriggers.push(st);
     }
 
     return () => {
       stTriggers.forEach((t) => t.kill());
       tweens.forEach((t) => t.kill());
+      // Clean up any sparks left mid-animation on unmount.
+      if (sparksGroup) sparksGroup.innerHTML = "";
     };
   }, []);
 
@@ -139,9 +241,9 @@ export default function Projects({ projects }: { projects: Project[] }) {
       ref={sectionRef}
       className="py-16 md:py-24 border-t border-border/10 select-none"
     >
-      <div className="max-w-5xl mx-auto px-4">
+      <div className="max-w-5xl mx-auto">
         {/* Section header */}
-        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-foreground mb-16 md:mb-20">
+        <h2 className="text-2xl px-4 md:text-3xl font-black tracking-tight text-foreground mb-16 md:mb-20">
           Selected Projects
         </h2>
 
@@ -174,6 +276,9 @@ export default function Projects({ projects }: { projects: Project[] }) {
               fill="none"
               strokeDasharray="7 5"
             />
+
+            {/* Motion sparks spawn/despawn here, behind the ship */}
+            <g ref={sparksGroupRef} />
 
             {/* Spaceship: a small arrowhead polygon, accent colored */}
             <g ref={shipRef} filter="url(#ship-glow)">
