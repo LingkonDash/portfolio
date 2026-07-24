@@ -107,7 +107,7 @@ export default function NavMenuOverlay({ isOpen, onClose, activeSection }: NavMe
   };
 
   // Modern GSAP hover effect (3D skew tilt + scale)
-  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>, index: number) => {
+  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) return;
 
@@ -162,6 +162,19 @@ export default function NavMenuOverlay({ isOpen, onClose, activeSection }: NavMe
       {/* Click outside target element to close */}
       <div className="absolute inset-0 z-0" onClick={onClose} />
 
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Close menu"
+        data-cursor="button"
+        className="absolute top-6 right-6 md:top-8 md:right-8 z-20 flex items-center justify-center w-6 h-6 text-foreground hover:text-accent transition-colors"
+      >
+        <span className="sr-only">Close menu</span>
+        <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
+          <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+      </button>
+
       <div
         ref={containerRef}
         className="relative z-10 w-full max-w-5xl h-full flex flex-col justify-center p-8 md:p-16"
@@ -183,7 +196,7 @@ export default function NavMenuOverlay({ isOpen, onClose, activeSection }: NavMe
                     linksRef.current[index] = el;
                   }}
                   onClick={(event) => handleLinkClick(event, link.href)}
-                  onMouseEnter={(e) => handleMouseEnter(e, index)}
+                  onMouseEnter={(e) => handleMouseEnter(e)}
                   onMouseLeave={(e) => handleMouseLeave(e, index)}
                   data-cursor="link"
                   className="group relative flex items-baseline gap-4 text-left font-sans text-5xl md:text-7xl font-bold tracking-tighter transition-colors select-none"

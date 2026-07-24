@@ -171,8 +171,8 @@ export default function Contact() {
     >
       <div className="max-w-5xl mx-auto px-4">
         {/* Title */}
-        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-foreground mb-12">
-          Let's Connect
+        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-foreground mb-12 border-l-4 border-l-accent pl-4">
+          Let's <span className="text-accent">Connect</span>
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
@@ -258,7 +258,7 @@ export default function Contact() {
                         placeholder="Type your name here..."
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full bg-transparent border-b-2 border-border/40 focus:border-accent outline-none py-3 text-lg transition-colors font-sans placeholder-muted/30"
+                        className="w-full bg-transparent border-b-2 border-accent/40 focus:border-accent outline-none py-3 text-lg transition-colors font-sans placeholder-muted/30"
                       />
                     </div>
                   )}
@@ -275,7 +275,7 @@ export default function Contact() {
                         placeholder="name@example.com"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full bg-transparent border-b-2 border-border/40 focus:border-accent outline-none py-3 text-lg transition-colors font-sans placeholder-muted/30"
+                        className="w-full bg-transparent border-b-2 border-accent/40 focus:border-accent outline-none py-3 text-lg transition-colors font-sans placeholder-muted/30"
                       />
                     </div>
                   )}
@@ -292,7 +292,7 @@ export default function Contact() {
                         placeholder="Tell me about your project, idea, or just say hi..."
                         value={formData.message}
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        className="w-full bg-transparent border border-border/40 focus:border-accent rounded-xl p-4 outline-none text-base transition-colors font-sans placeholder-muted/30 resize-none"
+                        className="w-full bg-transparent border border-accent/40 focus:border-accent rounded-xl p-4 outline-none text-base transition-colors font-sans placeholder-muted/30 resize-none"
                       />
                     </div>
                   )}

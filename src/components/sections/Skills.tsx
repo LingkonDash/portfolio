@@ -138,8 +138,8 @@ export default function Skills({ skills }: { skills: CategorizedSkill[] }) {
   return (
     <section id="skills" className="py-16 px-6 md:py-24 border-t border-border/10">
       <div className="max-w-5xl mx-auto w-full">
-        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-foreground mb-6 text-left">
-          Skills & Technologies
+        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-foreground mb-6 text-left border-l-4 border-l-accent pl-4">
+          Skills & <span className="text-accent">Technologies</span>
         </h2>
 
         {/* Category filters */}

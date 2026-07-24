@@ -117,7 +117,7 @@ export default function About() {
     <section
       id="about"
       ref={containerRef}
-      className="py-16 px-6 md:py-24 max-w-4xl mx-auto w-full flex flex-col justify-center border-t border-border/10 select-none"
+      className="py-16 px-6 md:py-24 max-w-5xl mx-auto w-full flex flex-col justify-center border-t border-border/10 select-none"
     >
       <div className="grid grid-cols-1 gap-12 items-center w-full">
         {/* Profile photo centered at top */}
@@ -150,8 +150,8 @@ export default function About() {
 
         {/* About details underneath */}
         <div ref={textRef} className="flex flex-col gap-6 text-left">
-          <h2 className="reveal-text text-2xl md:text-3xl font-black tracking-tight text-foreground opacity-0">
-            About Me
+          <h2 className="reveal-text text-2xl md:text-3xl font-black tracking-tight text-foreground opacity-0 border-l-4 border-l-accent pl-4">
+            About <span className="text-accent">Me</span>
           </h2>
 
           <div className="flex flex-col gap-6 text-base md:text-lg text-foreground/90 leading-loose font-sans">

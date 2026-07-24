@@ -243,8 +243,8 @@ export default function Projects({ projects }: { projects: Project[] }) {
     >
       <div className="max-w-5xl mx-auto">
         {/* Section header */}
-        <h2 className="text-2xl px-4 md:text-3xl font-black tracking-tight text-foreground mb-16 md:mb-20">
-          Selected Projects
+        <h2 className="text-2xl px-4 md:text-3xl font-black tracking-tight text-foreground mb-16 md:mb-20 border-l-4 border-l-accent pl-4 -ml-4">
+          Selected <span className="text-accent">Projects</span>
         </h2>
 
         {/* Content wrapper — relative so the SVG overlay can be positioned inside */}

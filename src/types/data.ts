@@ -22,11 +22,9 @@ export interface Skill {
 }
 
 export interface Education {
-  id: string;
+  certificate: string;
   institution: string;
-  degree: string;
-  field: string;
-  startDate: string;
-  endDate: string;
-  description: string;
+  background: string;
+  passing_year: number;
+  gpa: number;
 }
