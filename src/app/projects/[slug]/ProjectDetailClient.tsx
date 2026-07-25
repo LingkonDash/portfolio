@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowLeft, ExternalLink, GitBranch } from "lucide-react";
+import { ArrowLeft, ExternalLink, GitBranch, AlertTriangle, Rocket } from "lucide-react";
 import type { Project } from "@/types/data";
 import { projectIcons } from "@/lib/project-icons";
 import { ANIM_CONFIG } from "@/lib/animation-config";
@@ -44,6 +44,7 @@ export default function ProjectDetailClient({ project, nextProject }: Props) {
 
   const techSectionRef = useRef<HTMLDivElement>(null);
   const storySectionRef = useRef<HTMLDivElement>(null);
+  const behindTheBuildSectionRef = useRef<HTMLDivElement>(null);
   const gallerySectionRef = useRef<HTMLDivElement>(null);
   const nextSectionRef = useRef<HTMLDivElement>(null);
 
@@ -69,6 +70,7 @@ export default function ProjectDetailClient({ project, nextProject }: Props) {
           heroImageRef.current,
           techSectionRef.current?.querySelectorAll("[data-reveal]"),
           storySectionRef.current?.querySelectorAll("[data-reveal]"),
+          behindTheBuildSectionRef.current?.querySelectorAll("[data-reveal]"),
           gallerySectionRef.current?.querySelectorAll("[data-reveal]"),
           nextSectionRef.current,
         ].filter(Boolean) as gsap.TweenTarget[],
@@ -126,6 +128,7 @@ export default function ProjectDetailClient({ project, nextProject }: Props) {
 
     wireScrollReveal(techSectionRef.current);
     wireScrollReveal(storySectionRef.current);
+    wireScrollReveal(behindTheBuildSectionRef.current);
     wireScrollReveal(gallerySectionRef.current);
 
     // Next-project band: single fade+slide, no children stagger needed.
@@ -281,6 +284,47 @@ export default function ProjectDetailClient({ project, nextProject }: Props) {
             ))}
           </div>
         </section>
+
+        {(project.challenges || project.futureImprovements) ? (
+          <section ref={behindTheBuildSectionRef} className="grid gap-10">
+            <div data-reveal className="max-w-2xl">
+              <span className="text-xs font-mono uppercase tracking-[0.32em] text-accent">Behind the build</span>
+              <h2 className="mt-4 text-3xl font-black tracking-tight text-foreground md:text-4xl">
+                Challenges &amp; what&rsquo;s next
+              </h2>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              {project.challenges ? (
+                <div
+                  data-reveal
+                  data-cursor="card"
+                  className="flex flex-col gap-4 rounded-[2rem] border border-border/20 bg-background-elevated/60 backdrop-blur-xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.3)]"
+                >
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent/10 text-accent">
+                    <AlertTriangle size={20} strokeWidth={1.5} />
+                  </div>
+                  <h3 className="text-xl font-black tracking-tight text-foreground">Challenges faced</h3>
+                  <p className="text-base leading-8 text-foreground/75">{project.challenges}</p>
+                </div>
+              ) : null}
+
+              {project.futureImprovements ? (
+                <div
+                  data-reveal
+                  data-cursor="card"
+                  className="flex flex-col gap-4 rounded-[2rem] border border-border/20 bg-background-elevated/60 backdrop-blur-xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.3)]"
+                >
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent/10 text-accent">
+                    <Rocket size={20} strokeWidth={1.5} />
+                  </div>
+                  <h3 className="text-xl font-black tracking-tight text-foreground">What&rsquo;s next</h3>
+                  <p className="text-base leading-8 text-foreground/75">{project.futureImprovements}</p>
+                </div>
+              ) : null}
+            </div>
+          </section>
+        ) : null}
 
         {galleryImages.length > 0 ? (
           <section ref={gallerySectionRef} className="grid gap-8">

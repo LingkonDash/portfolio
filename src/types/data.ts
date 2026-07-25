@@ -5,6 +5,8 @@ export interface Project {
   iconKey: "recipe-hut" | "book-hub" | "space-sync";
   description: string;
   longDescription: string;
+  challenges?: string | null;
+  futureImprovements?: string | null;
   liveUrl: string | null;
   repoUrl: string | null;
   images: string[];
