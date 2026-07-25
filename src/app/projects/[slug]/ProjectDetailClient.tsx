@@ -1,236 +1,353 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowLeft, ExternalLink, GitBranch } from "lucide-react";
 import type { Project } from "@/types/data";
 import { projectIcons } from "@/lib/project-icons";
+import { ANIM_CONFIG } from "@/lib/animation-config";
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface Props {
   project: Project;
+  nextProject: Project;
 }
 
-export default function ProjectDetailClient({ project }: Props) {
-  const Icon = projectIcons[project.iconKey];
+function chunkLongDescription(text: string) {
+  const sentences = text.match(/[^.!?]+[.!?]+(?:\s|$)/g)?.map((sentence) => sentence.trim()) ?? [text];
+  const chunks: string[] = [];
 
-  // ── Refs for staggered entrance ──────────────────────────────────────────
-  const backRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const buttonsRef = useRef<HTMLDivElement>(null);
-  const bodyRef = useRef<HTMLDivElement>(null);
-  const galleryRef = useRef<HTMLDivElement>(null);
+  for (let i = 0; i < sentences.length; i += 2) {
+    chunks.push(sentences.slice(i, i + 2).join(" "));
+  }
+
+  return chunks;
+}
+
+export default function ProjectDetailClient({ project, nextProject }: Props) {
+  const Icon = projectIcons[project.iconKey];
+  const storyParagraphs = useMemo(() => chunkLongDescription(project.longDescription), [project.longDescription]);
+  const galleryImages = project.images.slice(1);
+
+  // Refs used for scoped GSAP animation — no global class-name driven CSS,
+  // everything here is explicitly set and animated by this component only.
+  const heroBackRef = useRef<HTMLDivElement>(null);
+  const heroEyebrowRef = useRef<HTMLDivElement>(null);
+  const heroTitleRef = useRef<HTMLHeadingElement>(null);
+  const heroDescRef = useRef<HTMLParagraphElement>(null);
+  const heroCtaRef = useRef<HTMLDivElement>(null);
+  const heroImageRef = useRef<HTMLDivElement>(null);
+
+  const techSectionRef = useRef<HTMLDivElement>(null);
+  const storySectionRef = useRef<HTMLDivElement>(null);
+  const gallerySectionRef = useRef<HTMLDivElement>(null);
+  const nextSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const targets = [
-      backRef.current,
-      headerRef.current,
-      buttonsRef.current,
-      bodyRef.current,
-      galleryRef.current,
+    const heroTargets = [
+      heroBackRef.current,
+      heroEyebrowRef.current,
+      heroTitleRef.current,
+      heroDescRef.current,
+      heroCtaRef.current,
     ].filter(Boolean);
 
+    const triggers: ScrollTrigger[] = [];
+    const tweens: gsap.core.Tween[] = [];
+
     if (prefersReducedMotion) {
-      gsap.set(targets, { opacity: 0 });
-      gsap.to(targets, { opacity: 1, duration: 0.4, stagger: 0, ease: "power2.out" });
-    } else {
-      gsap.set(targets, { opacity: 0, y: 24 });
-      gsap.to(targets, {
+      // Show everything immediately — no motion.
+      gsap.set(
+        [
+          ...heroTargets,
+          heroImageRef.current,
+          techSectionRef.current?.querySelectorAll("[data-reveal]"),
+          storySectionRef.current?.querySelectorAll("[data-reveal]"),
+          gallerySectionRef.current?.querySelectorAll("[data-reveal]"),
+          nextSectionRef.current,
+        ].filter(Boolean) as gsap.TweenTarget[],
+        { opacity: 1, y: 0, x: 0, scale: 1, clearProps: "transform" }
+      );
+      return;
+    }
+
+    // ── Hero: animates in on mount, not on scroll (it's above the fold) ──────
+    gsap.set(heroTargets, { opacity: 0, y: 24 });
+    gsap.set(heroImageRef.current, { opacity: 0, scale: 0.97 });
+
+    const heroTl = gsap.timeline();
+    heroTl
+      .to(heroTargets, {
         opacity: 1,
         y: 0,
-        duration: 0.65,
-        stagger: 0.1,
-        ease: "power3.out",
-        delay: 0.05,
+        duration: ANIM_CONFIG.duration,
+        ease: ANIM_CONFIG.ease,
+        stagger: ANIM_CONFIG.stagger ?? 0.1,
+      })
+      .to(
+        heroImageRef.current,
+        { opacity: 1, scale: 1, duration: ANIM_CONFIG.duration, ease: ANIM_CONFIG.ease },
+        "<0.15"
+      );
+    tweens.push(heroTl as unknown as gsap.core.Tween);
+
+    // ── Generic helper: fade+slide-up reveal for any section's [data-reveal] children ──
+    const wireScrollReveal = (container: HTMLElement | null) => {
+      if (!container) return;
+      const items = container.querySelectorAll<HTMLElement>("[data-reveal]");
+      if (!items.length) return;
+
+      gsap.set(items, { opacity: 0, y: 20 });
+
+      const st = ScrollTrigger.create({
+        trigger: container,
+        start: "top bottom-=100",
+        once: true,
+        onEnter: () => {
+          tweens.push(
+            gsap.to(items, {
+              opacity: 1,
+              y: 0,
+              duration: ANIM_CONFIG.duration,
+              ease: ANIM_CONFIG.ease,
+              stagger: ANIM_CONFIG.stagger ?? 0.08,
+            })
+          );
+        },
       });
+      triggers.push(st);
+    };
+
+    wireScrollReveal(techSectionRef.current);
+    wireScrollReveal(storySectionRef.current);
+    wireScrollReveal(gallerySectionRef.current);
+
+    // Next-project band: single fade+slide, no children stagger needed.
+    if (nextSectionRef.current) {
+      gsap.set(nextSectionRef.current, { opacity: 0, y: 20 });
+      const st = ScrollTrigger.create({
+        trigger: nextSectionRef.current,
+        start: "top bottom-=80",
+        once: true,
+        onEnter: () => {
+          tweens.push(
+            gsap.to(nextSectionRef.current, {
+              opacity: 1,
+              y: 0,
+              duration: ANIM_CONFIG.duration,
+              ease: ANIM_CONFIG.ease,
+            })
+          );
+        },
+      });
+      triggers.push(st);
     }
+
+    return () => {
+      triggers.forEach((t) => t.kill());
+      tweens.forEach((t) => t.kill());
+    };
   }, []);
 
   return (
-    <div className="min-h-screen py-28 md:py-36 font-sans">
-      <div className="max-w-4xl mx-auto px-4 md:px-8 flex flex-col gap-14">
-
-        {/* ── Back navigation ──────────────────────────────────────────────── */}
-        <div ref={backRef}>
-          <Link
-            href="/#projects"
-            data-cursor="link"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-accent transition-colors duration-200 group"
+    // No background classes here — this must stay transparent so the
+    // global fixed star field (mounted in the root layout, behind all
+    // page content) remains visible through this route too.
+    <main className="min-h-screen py-24 md:py-32 font-sans">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-20 px-4 md:px-8">
+        <section
+          ref={heroImageRef}
+          className="relative overflow-hidden rounded-[2.5rem] border border-border/20 bg-background-elevated/60 backdrop-blur-xl p-6 shadow-[0_30px_90px_rgba(0,0,0,0.35)] md:p-10"
+        >
+          <div
+            ref={heroBackRef}
+            className="pointer-events-none absolute left-6 top-6 hidden text-[7rem] font-black uppercase tracking-[0.3em] text-foreground/5 md:block"
           >
-            <ArrowLeft
-              size={15}
-              className="transition-transform duration-200 group-hover:-translate-x-1"
-            />
-            Back to Projects
-          </Link>
-        </div>
-
-        {/* ── Header ───────────────────────────────────────────────────────── */}
-        <div ref={headerRef} className="flex flex-col gap-4">
-          {/* Project number */}
-          <span className="font-mono text-[10px] tracking-[0.35em] text-muted/50 uppercase">
-            {project.number}&thinsp;/&thinsp;03
-          </span>
-
-          {/* Title + icon row */}
-          <div className="flex items-center gap-5">
-            <div className="p-3.5 rounded-2xl bg-accent/10 border border-accent/25 text-accent shrink-0">
-              <Icon size={28} strokeWidth={1.5} />
-            </div>
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground leading-none">
-              {project.title}
-            </h1>
+            {project.number}
           </div>
-        </div>
 
-        {/* ── Action buttons (placeholders until links are available) ──────── */}
-        <div ref={buttonsRef} className="flex flex-wrap gap-3">
-          {/* Live URL button */}
-          {project.liveUrl ? (
-            <a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-cursor="button"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-accent-foreground font-bold text-sm tracking-wide hover:opacity-90 transition-opacity"
-            >
-              <ExternalLink size={14} />
-              Live Demo
-            </a>
-          ) : (
-            /* TODO: Replace with a real <a> once the live URL is available */
-            <button
-              disabled
-              data-cursor="button"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-foreground/8 text-foreground/35 border border-foreground/10 font-bold text-sm tracking-wide cursor-not-allowed select-none"
-            >
-              <ExternalLink size={14} />
-              Live Demo — Coming Soon
-            </button>
-          )}
-
-          {/* GitHub repo button */}
-          {project.repoUrl ? (
-            <a
-              href={project.repoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-cursor="button"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-border hover:border-accent/50 bg-background-elevated/50 text-foreground hover:text-accent font-bold text-sm tracking-wide transition-all duration-200"
-            >
-              <GitBranch size={14} />
-              View Source
-            </a>
-          ) : (
-            /* TODO: Replace with a real <a> once the repository is made public */
-            <button
-              disabled
-              data-cursor="button"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-foreground/10 bg-foreground/5 text-foreground/35 font-bold text-sm tracking-wide cursor-not-allowed select-none"
-            >
-              <GitBranch size={14} />
-              Source — Coming Soon
-            </button>
-          )}
-        </div>
-
-        {/* ── Long description body ─────────────────────────────────────────── */}
-        <div ref={bodyRef} className="flex flex-col gap-5 border-t border-border/20 pt-10">
-          <h2 className="text-lg font-bold tracking-tight text-foreground">
-            About this project
-          </h2>
-          <p className="text-base text-foreground/75 leading-[1.85] font-sans max-w-prose">
-            {project.longDescription}
-          </p>
-        </div>
-
-        {/* ── Image gallery ─────────────────────────────────────────────────── */}
-        <div ref={galleryRef} className="flex flex-col gap-5">
-          <h2 className="text-lg font-bold tracking-tight text-foreground">
-            Screenshots
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {project.images.map((imgSrc, idx) => (
-              <div
-                key={idx}
-                className={`relative rounded-2xl overflow-hidden border border-border/40 bg-background-elevated/30 flex items-center justify-center shadow-xl ${
-                  idx === 0 ? "md:col-span-2 aspect-video" : "aspect-video"
-                }`}
+          <div className="relative z-10 flex flex-col gap-8">
+            <div className="max-w-max">
+              <Link
+                href="/#projects"
+                data-cursor="link"
+                className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.28em] text-muted transition-colors duration-200 hover:text-accent"
               >
-                {imgSrc ? (
-                  // Real image — swap the placeholder below with next/image once available
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={imgSrc}
-                    alt={`${project.title} screenshot ${idx + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  /*
-                    TODO: Replace this placeholder with the real screenshot.
-                    Usage once images are available:
+                <ArrowLeft size={16} />
+                Back to Projects
+              </Link>
+            </div>
 
-                    import Image from "next/image";
-                    <Image
-                      src={`/images/projects/${project.slug}-${idx + 1}.jpg`}
-                      alt={`${project.title} screenshot ${idx + 1}`}
-                      fill
-                      className="object-cover"
-                      priority={idx === 0}
-                    />
-                  */
-                  <>
-                    {/* Watermark slot number */}
-                    <span
-                      aria-hidden="true"
-                      className="absolute font-black text-foreground/[0.04] select-none pointer-events-none leading-none"
-                      style={{ fontSize: "clamp(4rem, 14vw, 9rem)" }}
-                    >
-                      {String(idx + 1).padStart(2, "0")}
-                    </span>
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(420px,0.9fr)] lg:items-end">
+              <div className="flex flex-col gap-6 text-left">
+                <div ref={heroEyebrowRef} className="flex flex-wrap items-center gap-3">
+                  <span className="rounded-full border border-accent/20 bg-accent/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-accent">
+                    Project {project.number}
+                  </span>
+                  <div className="flex h-11 w-11 items-center justify-center rounded-3xl bg-accent/10 text-accent shadow-sm shadow-accent/5">
+                    <Icon size={20} strokeWidth={1.5} />
+                  </div>
+                </div>
 
-                    {/* Centered placeholder label */}
-                    <div className="relative z-10 flex flex-col items-center gap-2">
-                      <div className="p-3 rounded-xl bg-accent/10 border border-accent/20 text-accent/60">
-                        <Icon size={22} strokeWidth={1.5} />
-                      </div>
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-muted/40">
-                        Screenshot {idx + 1}
-                      </span>
-                    </div>
+                <h1
+                  ref={heroTitleRef}
+                  className="max-w-3xl text-5xl font-black tracking-tight text-foreground md:text-6xl lg:text-7xl"
+                >
+                  {project.title}
+                </h1>
 
-                    {/* Grid texture */}
-                    <div
-                      aria-hidden="true"
-                      className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:18px_18px] pointer-events-none"
-                    />
-                  </>
-                )}
+                <p
+                  ref={heroDescRef}
+                  className="max-w-2xl text-lg leading-9 text-foreground/75 md:text-xl"
+                >
+                  {project.description}
+                </p>
+
+                <div ref={heroCtaRef} className="flex flex-wrap gap-3">
+                  <a
+                    href={project.liveUrl ?? undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-cursor="button"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-bold uppercase tracking-[0.18em] text-accent-foreground transition duration-200 hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <ExternalLink size={16} />
+                    Live Demo
+                  </a>
+
+                  <a
+                    href={project.repoUrl ?? undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-cursor="button"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-accent bg-background/90 px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-foreground transition duration-200 hover:bg-accent/10"
+                  >
+                    <GitBranch size={16} />
+                    View Code
+                  </a>
+                </div>
+              </div>
+
+              <div className="relative overflow-hidden rounded-[2rem] border border-border/20 bg-background/40 aspect-[4/3] min-h-[340px] shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+                <Image
+                  src={project.images[0]}
+                  alt={`${project.title} preview`}
+                  fill
+                  sizes="(min-width: 1024px) 35vw, (min-width: 768px) 60vw, 90vw"
+                  className="object-cover"
+                  priority
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section ref={techSectionRef} className="flex flex-col gap-6">
+          <div className="flex flex-wrap gap-3">
+            {project.techStack.map((tech) => (
+              <div
+                key={tech}
+                data-reveal
+                data-cursor="card"
+                className="inline-flex items-center rounded-full border border-accent/20 bg-accent/10 backdrop-blur-md px-4 py-2 text-sm font-semibold text-foreground transition duration-200 hover:border-accent/40 hover:bg-accent/15"
+              >
+                {tech}
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* ── Footer back link ──────────────────────────────────────────────── */}
-        <div className="pt-4 border-t border-border/20">
+        <section ref={storySectionRef} className="grid gap-10">
+          <div data-reveal className="max-w-2xl">
+            <span className="text-xs font-mono uppercase tracking-[0.32em] text-accent">Overview</span>
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-foreground md:text-4xl">The project story</h2>
+          </div>
+
+          <div className="grid gap-8">
+            {storyParagraphs.map((paragraph, index) => (
+              <p
+                key={index}
+                data-reveal
+                className="max-w-3xl text-base leading-8 text-foreground/75"
+              >
+                {paragraph}
+              </p>
+            ))}
+          </div>
+        </section>
+
+        {galleryImages.length > 0 ? (
+          <section ref={gallerySectionRef} className="grid gap-8">
+            <div data-reveal className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-[0.32em] text-accent">Visual tour</span>
+                <h2 className="mt-4 text-3xl font-black tracking-tight text-foreground md:text-4xl">Visual showcase</h2>
+              </div>
+              <p className="max-w-xl text-sm text-foreground/60">
+                A clean gallery of the project&rsquo;s remaining screens.
+              </p>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              {galleryImages.map((image, index) => (
+                <div
+                  key={image}
+                  data-reveal
+                  data-cursor="card"
+                  className="group relative overflow-hidden rounded-[2rem] border border-border/10 bg-background-elevated/40 backdrop-blur-md shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_30px_70px_rgba(0,0,0,0.4)]"
+                >
+                  <div className="aspect-[4/3] w-full overflow-hidden rounded-[2rem]">
+                    <Image
+                      src={image}
+                      alt={`${project.title} gallery ${index + 2}`}
+                      fill
+                      sizes="(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 90vw"
+                      className="object-cover transition duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <section ref={nextSectionRef} className="pb-10">
           <Link
-            href="/#projects"
-            data-cursor="link"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-accent transition-colors duration-200 group"
+            href={`/projects/${nextProject.slug}`}
+            data-cursor="button"
+            className="group block overflow-hidden rounded-[2.5rem] border border-border/20 bg-background-elevated/60 backdrop-blur-xl p-6 transition duration-300 hover:-translate-y-1 hover:border-accent/40 md:p-8"
           >
-            <ArrowLeft
-              size={15}
-              className="transition-transform duration-200 group-hover:-translate-x-1"
-            />
-            Back to Projects
+            <div className="grid gap-6 grid-cols-1 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div className="space-y-4">
+                <span className="text-xs font-mono uppercase tracking-[0.32em] text-accent">Next Project</span>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
+                  <span className="text-4xl font-black tracking-tight text-foreground">{nextProject.number}</span>
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.22em] text-muted">Continue the story</p>
+                    <h3 className="mt-2 text-2xl font-black tracking-tight text-foreground md:text-3xl">{nextProject.title}</h3>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative mx-auto w-full max-w-[280px] overflow-hidden rounded-[2rem] border border-border/20 bg-background/40 aspect-[4/3] min-h-[220px] shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+                <Image
+                  src={nextProject.images[0]}
+                  alt={`Preview of ${nextProject.title}`}
+                  fill
+                  sizes="(min-width: 1024px) 280px, 45vw"
+                  className="object-cover"
+                />
+              </div>
+            </div>
           </Link>
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

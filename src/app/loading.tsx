@@ -12,11 +12,6 @@
  * simply fades out naturally when Next.js removes it after the page is ready.
  */
 
-import LoadingScreen from "@/components/sections/LoadingScreen";
-
-// Must be a Server Component export (no "use client") for Next.js to recognise
-// it as a loading.tsx segment. LoadingScreen itself is "use client" internally.
 export default function Loading() {
-  // onComplete is optional — Next.js handles unmounting via its Suspense boundary
-  return <LoadingScreen />;
+  return null;
 }

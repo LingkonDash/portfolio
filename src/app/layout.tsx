@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import CustomCursor from "@/components/ui/CustomCursor";
-import AppLoader from "@/components/AppLoader";
 import StarBackground from "@/components/sections/StarBackground";
 import Navbar from "@/components/sections/Navbar";
 import InitialScrollReset from "@/components/InitialScrollReset";
 import BackToTopButton from "@/components/ui/BackToTopButton";
+import RouteTransitionProvider from "@/components/RouteTransitionProvider";
 import "./globals.css";
 
 // TODO: Swap in a custom font here if desired.
@@ -64,9 +64,7 @@ export default function RootLayout({
 
           {/* Navbar is in layout so it renders on all routes (homepage + /projects/[slug] etc.) */}
           <Navbar />
-          <AppLoader>
-            {children}
-          </AppLoader>
+          <RouteTransitionProvider>{children}</RouteTransitionProvider>
           <BackToTopButton />
         </ThemeProvider>
       </body>

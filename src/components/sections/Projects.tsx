@@ -16,6 +16,24 @@ import { ANIM_CONFIG } from "@/lib/animation-config";
 // in case anything else in the app relies on it being globally available.
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
+// The ship is drawn as raw <path> data (same shape as the shared ShipIcon
+// component) directly inside this section's own <svg>, INSTEAD OF nesting
+// a <ShipIcon> (which renders its own <svg viewBox="0 0 24 24">) inside
+// this SVG. Nesting an <svg> inside an <svg> without explicit width/height
+// ATTRIBUTES (CSS classes alone aren't reliably honored on nested SVG
+// viewports) makes browsers fall back to width="100%" height="100%" of
+// the parent viewport — since the parent svg here spans the entire
+// section's pixel size, that silently stretched the ship to fill the
+// whole section. Inlining the path avoids the nested-viewport issue
+// entirely and keeps sizing 100% controlled by the transform below.
+const SHIP_PATH_MAIN = "M12 2L6 8L3 15L12 13L21 15L18 8L12 2Z";
+const SHIP_PATH_FIN = "M12 13L8.5 20L12 18L15.5 20L12 13Z";
+
+// Final on-screen size ≈ 24 * PROJECT_SHIP_SCALE px. 0.6 → ~14.4px, small
+// and proportionate to the thin trail path.
+const PROJECT_SHIP_SCALE = 0.9;
+const PROJECT_SHIP_GLOW_BLUR = 1.1;
+
 // ─── Content is now imported from @/lib/projects ─────────────────────────────
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -109,15 +127,28 @@ export default function Projects({ projects }: { projects: Project[] }) {
 
       const totalLength = pathEl.getTotalLength();
 
-      // The ship polygon's neutral artwork points UP (tip at negative-y).
-      // atan2(dy, dx) treats angle 0 as pointing RIGHT (+x), and since SVG's
-      // y-axis increases downward, positive rotation is clockwise. An
-      // "up-facing" shape sits at -90° in that system, so to align the nose
-      // with a tangent angle `a`, we need to rotate it by (a + 90).
+      // The ship artwork's neutral orientation points UP. atan2(dy, dx)
+      // treats angle 0 as pointing RIGHT (+x), and since SVG's y-axis
+      // increases downward, positive rotation is clockwise. An "up-facing"
+      // shape sits at -90° in that system, so to align the nose with a
+      // tangent angle `a`, we need to rotate it by (a + 90).
       const BASE_OFFSET = 90;
+      // Half the ship's final rendered size — used for spark tail offset.
+      const SHIP_HALF_SIZE = (24 * PROJECT_SHIP_SCALE) / 2;
 
       let prevProgress = 0;
       let lastSparkTime = 0;
+
+      // Eased "quick" setters — instead of snapping the ship straight to
+      // each scroll-driven target, these tween toward it with an eased
+      // deceleration curve, giving smooth, weighted movement instead of a
+      // 1:1 jump on every scrub tick.
+      const quickX = gsap.quickTo(ship, "x", { duration: 0.45, ease: "power3.out" });
+      const quickY = gsap.quickTo(ship, "y", { duration: 0.45, ease: "power3.out" });
+      const quickRotation = gsap.quickTo(ship, "rotation", {
+        duration: 0.5,
+        ease: "power3.out",
+      });
 
       // Reusable helper: get {x, y} plus a forward direction vector at a
       // given progress (0–1) along the path, using a small forward/backward
@@ -150,12 +181,12 @@ export default function Projects({ projects }: { projects: Project[] }) {
         facingY: number
       ) => {
         if (!sparksGroup) return;
-        const tailOffset = 9;
+        const tailOffset = SHIP_HALF_SIZE;
         const tailX = shipX - facingX * tailOffset;
         const tailY = shipY - facingY * tailOffset;
 
         const spark = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        spark.setAttribute("r", "1.6");
+        spark.setAttribute("r", "0.9");
         spark.setAttribute("fill", "var(--color-accent)");
         spark.setAttribute("opacity", "0.85");
         spark.setAttribute("cx", String(tailX));
@@ -163,15 +194,15 @@ export default function Projects({ projects }: { projects: Project[] }) {
         sparksGroup.appendChild(spark);
 
         // Jittered drift backward + sideways, fading and shrinking out.
-        const jitter = (Math.random() - 0.5) * 14;
+        const jitter = (Math.random() - 0.5) * 5;
         gsap.to(spark, {
           attr: {
-            cx: tailX - facingX * (16 + Math.random() * 10) + jitter,
-            cy: tailY - facingY * (16 + Math.random() * 10) + jitter,
-            r: 0.2,
+            cx: tailX - facingX * (6 + Math.random() * 4) + jitter,
+            cy: tailY - facingY * (6 + Math.random() * 4) + jitter,
+            r: 0.1,
           },
           opacity: 0,
-          duration: 0.5 + Math.random() * 0.25,
+          duration: 0.32 + Math.random() * 0.12,
           ease: "power1.out",
           onComplete: () => {
             spark.remove();
@@ -179,7 +210,8 @@ export default function Projects({ projects }: { projects: Project[] }) {
         });
       };
 
-      // Set initial ship position/rotation before scroll begins.
+      // Set initial ship position/rotation before scroll begins (instant,
+      // no easing needed for the very first placement).
       const initial = sampleAt(0);
       gsap.set(ship, {
         x: initial.x,
@@ -192,7 +224,10 @@ export default function Projects({ projects }: { projects: Project[] }) {
         trigger: section,
         start: "top center",
         end: "bottom center",
-        scrub: 0.7,
+        // Lower scrub = tracks raw scroll more tightly; the quickTo calls
+        // above are what actually smooth/decelerate the visible motion, so
+        // we don't want scrub's own lag stacking on top of it.
+        scrub: 0.3,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
           const progress = self.progress;
@@ -209,7 +244,9 @@ export default function Projects({ projects }: { projects: Project[] }) {
           const tangentAngle = Math.atan2(dirY, dirX) * (180 / Math.PI);
           const rotation = tangentAngle + BASE_OFFSET + (movingBackward ? 180 : 0);
 
-          gsap.set(ship, { x, y, rotation });
+          quickX(x);
+          quickY(y);
+          quickRotation(rotation);
 
           // Only spark while there's meaningful movement, throttled so we
           // don't spawn a particle on every single scrub tick.
@@ -243,7 +280,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
     >
       <div className="max-w-5xl mx-auto">
         {/* Section header */}
-        <h2 className="text-2xl px-4 md:text-3xl font-black tracking-tight text-foreground mb-16 md:mb-20 border-l-4 border-l-accent pl-4 -ml-4">
+        <h2 className="text-2xl px-4 md:text-3xl font-black tracking-tight text-foreground mb-16 md:mb-20 border-l-4 border-l-accent pl-4">
           Selected <span className="text-accent">Projects</span>
         </h2>
 
@@ -259,7 +296,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
           >
             <defs>
               <filter id="ship-glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="2.5" result="blur" />
+                <feGaussianBlur stdDeviation={PROJECT_SHIP_GLOW_BLUR} result="blur" />
                 <feMerge>
                   <feMergeNode in="blur" />
                   <feMergeNode in="SourceGraphic" />
@@ -280,29 +317,28 @@ export default function Projects({ projects }: { projects: Project[] }) {
             {/* Motion sparks spawn/despawn here, behind the ship */}
             <g ref={sparksGroupRef} />
 
-            {/* Spaceship: a small arrowhead polygon, accent colored */}
+            {/* Spaceship — path data inlined directly (no nested <svg>, see
+                comment near SHIP_PATH_MAIN above for why). Transform order:
+                scale is OUTER, translate is INNER, so the -12,-12 centering
+                offset happens in the icon's native 24-unit space BEFORE
+                scaling — this keeps it correctly centered at any scale. */}
             <g ref={shipRef} filter="url(#ship-glow)">
-              {/* Main body – tip points upward (negative Y in SVG) */}
-              <polygon
-                points="0,-9 5.5,8 0,4 -5.5,8"
-                fill="var(--color-accent)"
-                fillOpacity="0.9"
-              />
-              {/* Engine exhaust glow dot */}
-              <ellipse cx="0" cy="11" rx="3" ry="2" fill="var(--color-accent)" fillOpacity="0.35" />
+              <g transform={`scale(${PROJECT_SHIP_SCALE}) translate(-12 -12)`}>
+                <path d={SHIP_PATH_MAIN} fill="var(--color-accent)" />
+                <path d={SHIP_PATH_FIN} fill="var(--color-accent)" opacity="0.8" />
+              </g>
             </g>
           </svg>
 
           {/* ── Mobile vertical connector line (single column) ──────────── */}
           <div
             aria-hidden="true"
-            className="lg:hidden absolute left-3 top-2 bottom-2 w-px bg-gradient-to-b from-accent/30 via-accent/10 to-transparent pointer-events-none"
+            className="lg:hidden absolute left-3 top-2 bottom-2 w-px bg-linear-to-b from-accent/30 via-accent/10 to-transparent pointer-events-none"
           />
 
           {/* ── Project entries ──────────────────────────────────────────── */}
           <div className="relative z-10 flex flex-col gap-20 md:gap-28">
             {sortedProjects.map((project, i) => {
-              const Icon = projectIcons[project.iconKey];
               // Even index (0, 2): description LEFT | image RIGHT
               // Odd index  (1):    image LEFT       | description RIGHT
               const isEven = i % 2 === 0;
@@ -365,7 +401,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
 
                       <div
                         aria-hidden="true"
-                        className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background-elevated/40 to-transparent pointer-events-none"
+                        className="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t from-background-elevated/40 to-transparent pointer-events-none"
                       />
                     </div>
                   </div>
