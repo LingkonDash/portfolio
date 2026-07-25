@@ -1,5 +1,5 @@
 import React from "react";
-import { GitBranch, Users, Globe, MessageCircle } from "lucide-react";
+import { FaFacebook, FaGithub, FaLinkedin, FaWhatsapp } from "react-icons/fa";
 
 export default function SocialLinks({ className = "" }: { className?: string }) {
   return (
@@ -12,7 +12,7 @@ export default function SocialLinks({ className = "" }: { className?: string }) 
         className="p-3 rounded-full bg-background-elevated/80 border border-border hover:border-accent/40 text-muted hover:text-accent transition-all duration-300 shadow-md hover:scale-105 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
         aria-label="GitHub"
       >
-        <GitBranch size={20} />
+        <FaGithub size={20} />
       </a>
       <a
         href="https://www.linkedin.com/in/lingkon-dash/"
@@ -22,7 +22,7 @@ export default function SocialLinks({ className = "" }: { className?: string }) 
         className="p-3 rounded-full bg-background-elevated/80 border border-border hover:border-accent/40 text-muted hover:text-accent transition-all duration-300 shadow-md hover:scale-105 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
         aria-label="LinkedIn"
       >
-        <Users size={20} />
+        <FaLinkedin size={20} />
       </a>
       <a
         href="https://www.facebook.com/lingkon.dash.2025"
@@ -32,7 +32,7 @@ export default function SocialLinks({ className = "" }: { className?: string }) 
         className="p-3 rounded-full bg-background-elevated/80 border border-border hover:border-accent/40 text-muted hover:text-accent transition-all duration-300 shadow-md hover:scale-105 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
         aria-label="Facebook"
       >
-        <Globe size={20} />
+        <FaFacebook size={20} />
       </a>
       <a
         href="https://wa.me/8801776572194"
@@ -42,7 +42,7 @@ export default function SocialLinks({ className = "" }: { className?: string }) 
         className="p-3 rounded-full bg-background-elevated/80 border border-border hover:border-accent/40 text-muted hover:text-accent transition-all duration-300 shadow-md hover:scale-105 focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
         aria-label="WhatsApp"
       >
-        <MessageCircle size={20} />
+        <FaWhatsapp size={20} />
       </a>
     </div>
   );
