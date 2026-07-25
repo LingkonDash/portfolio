@@ -181,6 +181,10 @@ export default function Hero() {
     scrollToSection("connect", { behavior: "smooth" });
   };
 
+  const handleResumeClick = () => {
+    window.open("/resume.pdf", "_blank", "noopener,noreferrer");
+  };
+
   return (
     <section
       id="hero"
@@ -219,11 +223,12 @@ export default function Hero() {
 
           <div ref={buttonWrapperRef} className="flex flex-wrap items-center gap-3">
             <button
-              disabled
+              type="button"
               data-cursor="button"
-              className="inline-flex items-center justify-center rounded-full px-6 py-3 bg-accent text-accent-foreground font-bold uppercase tracking-wider opacity-85 cursor-not-allowed select-none transition-colors"
+              onClick={handleResumeClick}
+              className="inline-flex items-center justify-center rounded-full px-6 py-3 bg-accent text-accent-foreground font-bold uppercase tracking-wider select-none transition-colors hover:bg-accent/90"
             >
-              Resume Coming Soon
+              View Resume
             </button>
             <button
               type="button"
