@@ -50,15 +50,10 @@ import { VscVscode } from "react-icons/vsc";
  * (id, name, iconUrl?, icon?, category?) — this file defines a local
  * `WheelSkill` type so it works as a drop-in even before you do.
  */
-export type SkillCategory = "frontend" | "backend" | "tools";
+import { Skill, SkillCategory } from "@/types/data";
 
-export interface WheelSkill {
-  id: string;
-  name: string;
-  iconUrl?: string;
-  icon?: string;
-  category?: SkillCategory;
-}
+export type { SkillCategory };
+export type WheelSkill = Skill;
 
 // ---------------------------------------------------------------------------
 // Icon fallback map (used when a skill has no iconUrl, or the image 404s)
@@ -259,7 +254,7 @@ function SkillNode({
           transform: hovered ? "scale(1.18)" : "scale(1)",
         }}
       >
-        {showImg ? (
+        {showImg && skill.iconUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={skill.iconUrl}

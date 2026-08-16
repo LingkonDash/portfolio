@@ -21,7 +21,7 @@ export async function getSkills(): Promise<Skill[]> {
   const filePath = path.join(process.cwd(), "public", "data", "skills.json");
   const fileContent = await fs.readFile(filePath, "utf-8");
   const skills: Skill[] = JSON.parse(fileContent);
-  return skills.sort((a, b) => a.order - b.order);
+  return skills.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
 
 export async function getEducation(): Promise<Education[]> {

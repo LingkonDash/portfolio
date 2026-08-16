@@ -14,13 +14,17 @@ export interface Project {
   order: number;
 }
 
+export type SkillCategory = "frontend" | "backend" | "tools";
+
 export interface Skill {
   id: string;
   name: string;
-  iconUrl: string | null;
-  iconFallback: string;
-  description: string;
-  order: number;
+  iconUrl?: string | null;
+  icon?: string;
+  iconFallback?: string;
+  category?: SkillCategory;
+  description?: string;
+  order?: number;
 }
 
 export interface Education {
