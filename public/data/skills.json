@@ -88,7 +88,48 @@
     "category": "tools",
     "description": "I use Vite for rapid local development, relying on its fast HMR and optimized build process to keep the development feedback loop tight.",
     "order": 10
-  },
+  }
+  ,
+  {
+    "id": "vs-code",
+    "name": "VS Code",
+    "iconUrl": "https://cdn.simpleicons.org/visualstudiocode/007ACC",
+    "iconFallback": "Settings",
+    "category": "tools",
+    "description": "I rely on VS Code as my primary development environment, customizing it with extensions and workflows that keep my coding process efficient and organized.",
+    "order": 11
+  }
+  ,
+  {
+    "id": "vs-code",
+    "name": "VS Code",
+    "iconUrl": "https://cdn.simpleicons.org/visualstudiocode/007ACC",
+    "iconFallback": "Settings",
+    "category": "tools",
+    "description": "I rely on VS Code as my primary development environment, customizing it with extensions and workflows that keep my coding process efficient and organized.",
+    "order": 11
+  }
+  ,
+  {
+    "id": "vs-code",
+    "name": "VS Code",
+    "iconUrl": "https://cdn.simpleicons.org/visualstudiocode/007ACC",
+    "iconFallback": "Settings",
+    "category": "tools",
+    "description": "I rely on VS Code as my primary development environment, customizing it with extensions and workflows that keep my coding process efficient and organized.",
+    "order": 11
+  }
+  ,
+  {
+    "id": "vs-code",
+    "name": "VS Code",
+    "iconUrl": "https://cdn.simpleicons.org/visualstudiocode/007ACC",
+    "iconFallback": "Settings",
+    "category": "tools",
+    "description": "I rely on VS Code as my primary development environment, customizing it with extensions and workflows that keep my coding process efficient and organized.",
+    "order": 11
+  }
+  ,
   {
     "id": "vs-code",
     "name": "VS Code",

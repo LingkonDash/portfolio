@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { IconType } from "react-icons";
 import { IoLogoCss3 } from "react-icons/io";
 import {
@@ -33,20 +33,37 @@ import {
   SiPhp,
 } from "react-icons/si";
 import { FaJava, FaAws, FaCode, FaShieldAlt } from "react-icons/fa";
-import { Skill } from "@/types/data";
+import { FiServer, FiTool } from "react-icons/fi";
 import { VscVscode } from "react-icons/vsc";
 
 /**
- * NOTE: this assumes `Skill` (in @/types/data) has an optional `category`
- * field, e.g. category?: "frontend" | "backend" | "tools".
- * Add it to your type + JSON data so filtering works. Skills without a
- * category still show up under "All".
+ * Skill shape as it now arrives from the backend, e.g.
+ * {
+ *   id: "html",
+ *   name: "HTML",
+ *   iconUrl: "https://cdn.simpleicons.org/html5/E34F26",
+ *   icon: "FileCode",
+ *   category: "frontend",
+ * }
+ *
+ * Update your `Skill` type in @/types/data to match this shape
+ * (id, name, iconUrl?, icon?, category?) — this file defines a local
+ * `WheelSkill` type so it works as a drop-in even before you do.
  */
-type SkillCategory = "frontend" | "backend" | "tools";
-type CategorizedSkill = Skill & { category?: SkillCategory; order?: number };
+export type SkillCategory = "frontend" | "backend" | "tools";
 
-// Maps a skill's name (or its existing iconFallback field) to a react-icon.
-// Add new entries here as you add skills — key is lowercase, no punctuation.
+export interface WheelSkill {
+  id: string;
+  name: string;
+  iconUrl?: string;
+  icon?: string;
+  category?: SkillCategory;
+}
+
+// ---------------------------------------------------------------------------
+// Icon fallback map (used when a skill has no iconUrl, or the image 404s)
+// ---------------------------------------------------------------------------
+
 const iconMap: Record<string, IconType> = {
   html: SiHtml5,
   html5: SiHtml5,
@@ -103,92 +120,431 @@ const iconMap: Record<string, IconType> = {
   "better auth": FaShieldAlt,
 };
 
-// Lowercases and strips punctuation so ids like "vs-code" / names like
-// "Express.js" line up with iconMap keys regardless of spacing/dashes/dots.
 const normalize = (value: string) =>
   value.trim().toLowerCase().replace(/[.]/g, "").replace(/[-_]/g, " ").trim();
 
-const resolveIcon = (skill: CategorizedSkill): IconType => {
+const resolveIcon = (skill: WheelSkill): IconType => {
   return (
     iconMap[normalize(skill.id ?? "")] ??
     iconMap[normalize(skill.name)] ??
-    iconMap[normalize(skill.iconFallback ?? "")] ??
+    iconMap[normalize(skill.icon ?? "")] ??
     FaCode
   );
 };
 
-const filters: { key: "all" | SkillCategory; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "frontend", label: "Frontend" },
-  { key: "backend", label: "Backend" },
-  { key: "tools", label: "Tools" },
-];
+// simpleicons.org URLs end in /<slug>/<HEXCOLOR> — pull that out so each
+// skill can glow in its own brand color without needing a separate field.
+const HEX_RE = /^[0-9a-fA-F]{6}$/;
+const FALLBACK_GLOW = "#38bdf8"; // matches this project's --accent (sky-400)
 
-export default function Skills({ skills }: { skills: CategorizedSkill[] }) {
-  const [activeFilter, setActiveFilter] = useState<"all" | SkillCategory>("all");
+const getSkillColor = (skill: WheelSkill): string => {
+  if (skill.iconUrl) {
+    const last = skill.iconUrl.split("/").pop() ?? "";
+    const hex = last.split(/[?#]/)[0];
+    if (HEX_RE.test(hex)) return `#${hex}`;
+  }
+  return FALLBACK_GLOW;
+};
 
-  const filteredSkills = useMemo(() => {
-    const list =
-      activeFilter === "all"
-        ? skills
-        : skills.filter((skill) => skill.category === activeFilter);
-    return [...list].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  }, [skills, activeFilter]);
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value));
+
+/** Splits skills into rings of at most `maxPerRing`, spreading any
+ * remainder onto the outer rings first (bigger circumference, more room). */
+function distributeIntoRings(
+  skills: WheelSkill[],
+  maxPerRing = 7
+): WheelSkill[][] {
+  const total = skills.length;
+  if (total === 0) return [];
+  const ringCount = Math.max(1, Math.ceil(total / maxPerRing));
+  const base = Math.floor(total / ringCount);
+  const remainder = total - base * ringCount;
+
+  const sizes = new Array(ringCount).fill(base);
+  for (let i = 0; i < remainder; i++) sizes[ringCount - 1 - i] += 1;
+
+  const rings: WheelSkill[][] = [];
+  let cursor = 0;
+  for (const size of sizes) {
+    rings.push(skills.slice(cursor, cursor + size));
+    cursor += size;
+  }
+  return rings;
+}
+
+function ringRadius(index: number, ringCount: number, half: number) {
+  const minFrac = 0.34;
+  const maxFrac = 0.94;
+  if (ringCount <= 1) return half * 0.62;
+  const frac = minFrac + (index / (ringCount - 1)) * (maxFrac - minFrac);
+  return half * frac;
+}
+
+/** Tracks an element's rendered width, Recharts-ResponsiveContainer style. */
+function useContainerWidth<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null);
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => setWidth(el.offsetWidth);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  return [ref, width] as const;
+}
+
+// ---------------------------------------------------------------------------
+// Single orbiting skill node
+// ---------------------------------------------------------------------------
+
+function SkillNode({
+  skill,
+  size,
+  hovered,
+  onEnter,
+  onLeave,
+}: {
+  skill: WheelSkill;
+  size: number;
+  hovered: boolean;
+  onEnter: () => void;
+  onLeave: () => void;
+}) {
+  const color = getSkillColor(skill);
+  const Icon = resolveIcon(skill);
+  const [imgFailed, setImgFailed] = useState(false);
+  const showImg = Boolean(skill.iconUrl) && !imgFailed;
+
+  return (
+    <div
+      className="relative flex items-center justify-center outline-none pointer-events-auto"
+      style={{ width: size, height: size }}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      onFocus={onEnter}
+      onBlur={onLeave}
+      tabIndex={0}
+      role="img"
+      aria-label={skill.name}
+    >
+      {/* chat-bubble tooltip */}
+      <div
+        className={`pointer-events-none absolute left-1/2 bottom-full mb-3 -translate-x-1/2 whitespace-nowrap rounded-lg border border-border/20 bg-background-elevated/95 px-2.5 py-1 text-xs font-semibold text-foreground shadow-lg backdrop-blur-sm transition-all duration-200 z-30 ${
+          hovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"
+        }`}
+      >
+        {skill.name}
+        <span className="absolute left-1/2 top-full -mt-[5px] h-2 w-2 -translate-x-1/2 rotate-45 border-b border-r border-border/20 bg-background-elevated/95" />
+      </div>
+
+      <div
+        className="flex items-center justify-center rounded-full border bg-background-elevated/30 backdrop-blur-md transition-all duration-300 focus-visible:ring-2 focus-visible:ring-accent/50"
+        style={{
+          width: size,
+          height: size,
+          borderColor: hovered ? color : "rgba(255,255,255,0.12)",
+          boxShadow: hovered
+            ? `0 0 ${size * 0.7}px ${color}55, 0 0 ${size * 0.2}px ${color}aa`
+            : "none",
+          transform: hovered ? "scale(1.18)" : "scale(1)",
+        }}
+      >
+        {showImg ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={skill.iconUrl}
+            alt={skill.name}
+            width={size * 0.5}
+            height={size * 0.5}
+            style={{ width: size * 0.5, height: size * 0.5, objectFit: "contain" }}
+            loading="lazy"
+            onError={() => setImgFailed(true)}
+          />
+        ) : (
+          <Icon size={size * 0.48} style={{ color: hovered ? color : undefined }} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// The wheel
+// ---------------------------------------------------------------------------
+
+function SkillWheel({ skills }: { skills: WheelSkill[] }) {
+  const [containerRef, width] = useContainerWidth<HTMLDivElement>();
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  const rings = useMemo(() => distributeIntoRings(skills), [skills]);
+  const half = width / 2;
+  const iconSize = clamp(width * 0.086, 26, 52);
+  const centerSize = clamp(width * 0.15, 44, 84);
+  const paused = hoveredId !== null;
+
+  return (
+    <div className="flex flex-col items-center">
+      <div
+        ref={containerRef}
+        className="relative aspect-square w-full max-w-[640px] mx-auto"
+      >
+        {width > 0 && (
+          <>
+            {/* orbit paths — the visible track each ring's skills travel along */}
+            {rings.map((_, i) => {
+              const radius = ringRadius(i, rings.length, half);
+              return (
+                <div
+                  key={`guide-${i}`}
+                  className="absolute top-1/2 left-1/2 pointer-events-none rounded-full border border-accent/50"
+                  style={{
+                    width: radius * 2,
+                    height: radius * 2,
+                    transform: "translate(-50%, -50%)",
+                    boxShadow:
+                      "0 0 16px rgba(56,189,248,0.08), inset 0 0 16px rgba(56,189,248,0.06)",
+                  }}
+                />
+              );
+            })}
+
+            {/* center */}
+            <div
+              className="absolute top-1/2 left-1/2 z-20 flex items-center justify-center rounded-full border border-accent/30 bg-accent/10 text-accent shadow-[0_0_40px_rgba(56,189,248,0.25)]"
+              style={{
+                width: centerSize,
+                height: centerSize,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <FaCode size={centerSize * 0.42} />
+            </div>
+
+            {rings.map((ringSkills, ringIndex) => {
+              const radius = ringRadius(ringIndex, rings.length, half);
+              const duration = 26 + ringIndex * 16;
+              const clockwise = ringIndex % 2 === 0;
+              const spinName = clockwise
+                ? "skillwheel-spin-cw"
+                : "skillwheel-spin-ccw";
+              const counterName = clockwise
+                ? "skillwheel-spin-ccw"
+                : "skillwheel-spin-cw";
+
+              return (
+                <div
+                  key={ringIndex}
+                  data-orbit
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    animation: `${spinName} ${duration}s linear infinite`,
+                    animationPlayState: paused ? "paused" : "running",
+                  }}
+                >
+                  {ringSkills.map((skill, i) => {
+                    const angle =
+                      (360 / ringSkills.length) * i + ringIndex * 18;
+                    return (
+                      <div
+                        key={skill.id}
+                        className="absolute top-1/2 left-1/2 z-10 pointer-events-none"
+                        style={{
+                          width: iconSize,
+                          height: iconSize,
+                          transform: `rotate(${angle}deg) translate(${radius}px) rotate(${-angle}deg) translate(-50%, -50%)`,
+                        }}
+                      >
+                        <div
+                          data-orbit
+                          className="pointer-events-none"
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            animation: `${counterName} ${duration}s linear infinite`,
+                            animationPlayState: paused ? "paused" : "running",
+                          }}
+                        >
+                          <SkillNode
+                            skill={skill}
+                            size={iconSize}
+                            hovered={hoveredId === skill.id}
+                            onEnter={() => setHoveredId(skill.id)}
+                            onLeave={() =>
+                              setHoveredId((current) =>
+                                current === skill.id ? null : current
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </>
+        )}
+      </div>
+
+      <style>{`
+        @keyframes skillwheel-spin-cw {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes skillwheel-spin-ccw {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(-360deg); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          [data-orbit] { animation: none !important; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Category summary cards
+// ---------------------------------------------------------------------------
+
+const CATEGORY_META: Record<
+  SkillCategory,
+  { label: string; eyebrow: string; icon: IconType }
+> = {
+  frontend: {
+    label: "Frontend Development",
+    eyebrow: "UI & Interaction",
+    icon: FaCode,
+  },
+  backend: {
+    label: "Backend Architecture",
+    eyebrow: "Server & Database",
+    icon: FiServer,
+  },
+  tools: {
+    label: "Tools & Integrations",
+    eyebrow: "Services & DevOps",
+    icon: FiTool,
+  },
+};
+
+function SkillCategoryCard({
+  category,
+  skills,
+}: {
+  category: SkillCategory;
+  skills: WheelSkill[];
+}) {
+  const meta = CATEGORY_META[category];
+  const Icon = meta.icon;
+
+  return (
+    <div className="flex h-full flex-col rounded-3xl border border-border/15 bg-background-elevated/20 p-6 backdrop-blur-xl transition-colors duration-300 hover:border-accent/25">
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/20 text-accent">
+          <Icon size={16} />
+        </div>
+        <span className="rounded-full border border-border/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-foreground/50">
+          {meta.eyebrow}
+        </span>
+      </div>
+
+      <h3 className="text-lg font-bold text-foreground mb-4">{meta.label}</h3>
+
+      <div className="flex flex-wrap gap-2 mb-6 min-h-[2rem]">
+        {skills.length === 0 && (
+          <span className="text-xs text-foreground/40">
+            No skills tagged yet.
+          </span>
+        )}
+        {skills.map((skill) => {
+          const SkillIcon = resolveIcon(skill);
+          return (
+            <span
+              key={skill.id}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/20 bg-background/40 px-3 py-1.5 text-xs font-medium text-foreground/90"
+            >
+              {skill.iconUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={skill.iconUrl} alt="" className="h-3.5 w-3.5" />
+              ) : (
+                <SkillIcon size={14} className="text-accent" />
+              )}
+              {skill.name}
+            </span>
+          );
+        })}
+      </div>
+
+      <div className="mt-auto flex items-center justify-between border-t border-border/10 pt-4">
+        <span className="text-xs text-foreground/50">
+          {skills.length} core {skills.length === 1 ? "technology" : "technologies"}
+        </span>
+        <span className="h-2 w-2 rounded-full bg-accent shadow-[0_0_8px_rgba(56,189,248,0.6)] animate-pulse" />
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Section
+// ---------------------------------------------------------------------------
+
+export default function Skills({ skills }: { skills: WheelSkill[] }) {
+  const grouped = useMemo(() => {
+    const map: Record<SkillCategory, WheelSkill[]> = {
+      frontend: [],
+      backend: [],
+      tools: [],
+    };
+    for (const skill of skills) {
+      if (skill.category && map[skill.category]) {
+        map[skill.category].push(skill);
+      }
+    }
+    return map;
+  }, [skills]);
 
   return (
     <section id="skills" className="py-16 px-6 md:py-24 border-t border-border/10">
       <div className="max-w-5xl mx-auto w-full">
-        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-foreground mb-6 text-left border-l-4 border-l-accent pl-4">
+        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-foreground mb-3 text-left border-l-4 border-l-accent pl-4">
           Skills & <span className="text-accent">Technologies</span>
         </h2>
+        <p className="text-sm md:text-base text-foreground/60 mb-12 pl-4">
+          Technologies and tools I reach for regularly.
+        </p>
 
-        {/* Category filters */}
-        <div className="flex flex-wrap gap-3 mb-10">
-          {filters.map((filter) => {
-            const isActive = activeFilter === filter.key;
-            return (
-              <button
-                key={filter.key}
-                type="button"
-                onClick={() => setActiveFilter(filter.key)}
-                className={`px-4 py-2 rounded-full text-sm md:text-sm font-semibold tracking-wide transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 ${
-                  isActive
-                    ? "border border-accent bg-accent/15 text-accent shadow-[0_0_0_1px_rgba(56,189,248,0.35)]"
-                    : "border border-border/30 bg-background-elevated/30 text-foreground hover:border-accent/40 hover:bg-accent/10"
-                }`}
-              >
-                {filter.label}
-              </button>
-            );
-          })}
-        </div>
+        <SkillWheel skills={skills} />
 
-        {/* Skill grid — translucent glass cards so the starfield behind shows through */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {filteredSkills.map((skill) => {
-            const Icon = resolveIcon(skill);
-            return (
-              <div
-                key={skill.id}
-                className="group relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-[2rem] border border-border/20 bg-background-elevated/15 p-5 text-center backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-accent/30 hover:bg-background-elevated/40 hover:shadow-[0_0_40px_rgba(56,189,248,0.14)]"
-              >
-                <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-accent/10 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
-                <div className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10 text-accent shadow-[0_0_24px_rgba(56,189,248,0.16)] border border-accent/20">
-                  <Icon size={24} />
-                </div>
-                <span className="relative z-10 text-base font-semibold tracking-tight text-foreground">
-                  {skill.name}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
-        {filteredSkills.length === 0 && (
-          <p className="text-sm text-foreground/60 mt-8 text-center">
-            No skills in this category yet.
+        <div className="text-center max-w-xl mx-auto mt-20 mb-10">
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+            By Discipline
+          </span>
+          <h3 className="text-xl md:text-2xl font-bold text-foreground mt-2">
+            Same skill set, three different jobs
+          </h3>
+          <p className="text-sm text-foreground/60 mt-2">
+            Everything orbiting above, grouped by what it actually does — the
+            interface, the server, and the workflow holding it together.
           </p>
-        )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {(Object.keys(CATEGORY_META) as SkillCategory[]).map((cat) => (
+            <SkillCategoryCard key={cat} category={cat} skills={grouped[cat]} />
+          ))}
+        </div>
       </div>
     </section>
   );
