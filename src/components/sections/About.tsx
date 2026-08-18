@@ -131,7 +131,7 @@ export default function About() {
           >
             <div className="absolute inset-0">
               <Image
-                src="/images/avatar3.jpg"
+                src="/images/avatar2.jpg"
                 alt="Lingkon Dash portrait"
                 fill
                 sizes="(max-width: 640px) 85vw, 400px"
