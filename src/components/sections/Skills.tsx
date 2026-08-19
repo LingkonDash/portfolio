@@ -291,7 +291,7 @@ function SkillWheel({ skills }: { skills: WheelSkill[] }) {
     <div className="flex flex-col items-center">
       <div
         ref={containerRef}
-        className="relative aspect-square w-full max-w-[640px] mx-auto"
+        className="relative aspect-square w-full max-w-[550px] mx-auto"
       >
         {width > 0 && (
           <>
@@ -513,21 +513,18 @@ export default function Skills({ skills }: { skills: WheelSkill[] }) {
   return (
     <section id="skills" className="py-16 px-6 md:py-24 border-t border-border/10">
       <div className="max-w-5xl mx-auto w-full">
-        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-foreground mb-3 text-left border-l-4 border-l-accent pl-4">
+        <h2 className="text-2xl md:text-3xl lg:text-5xl font-black tracking-tight text-foreground mb-3 text-left border-l-4 border-l-accent pl-4">
           Skills & <span className="text-accent">Technologies</span>
         </h2>
-        <p className="text-sm md:text-base text-foreground/60 mb-12 pl-4">
-          Technologies and tools I reach for regularly.
+        <p className="text-sm md:text-base text-foreground/60 mb-12 max-w-2xl pl-4">
+          React, Next.js and Node.js sit at the core of how I build — REST APIs and MongoDB on the backend, Tailwind CSS, HeroUI and Framer Motion for interfaces that feel considered, not default.
         </p>
 
         <SkillWheel skills={skills} />
 
         <div className="text-center max-w-xl mx-auto mt-20 mb-10">
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
-            By Discipline
-          </span>
-          <h3 className="text-xl md:text-2xl font-bold text-foreground mt-2">
-            Same skill set, three different jobs
+          <h3 className="text-xl md:text-3xl font-bold text-accent mt-2">
+            How I put the pieces together
           </h3>
           <p className="text-sm text-foreground/60 mt-2">
             Everything orbiting above, grouped by what it actually does — the

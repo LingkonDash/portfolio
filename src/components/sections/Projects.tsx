@@ -280,7 +280,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
     >
       <div className="max-w-5xl mx-auto">
         {/* Section header */}
-        <h2 className="text-2xl px-4 md:text-3xl font-black tracking-tight text-foreground mb-16 md:mb-20 border-l-4 border-l-accent pl-4">
+        <h2 className="text-2xl px-4 md:text-3xl lg:text-5xl font-black tracking-tight text-foreground mb-16 md:mb-20 border-l-4 border-l-accent pl-4">
           Selected <span className="text-accent">Projects</span>
         </h2>
 
@@ -418,7 +418,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
                     </span>
 
                     {/* Title — large typographic treatment */}
-                    <h3 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-foreground leading-[0.95]">
+                    <h3 className="text-3xl md:text-4xl font-black tracking-tight text-foreground leading-[0.95]">
                       {project.title}
                     </h3>
 

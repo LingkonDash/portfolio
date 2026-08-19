@@ -140,7 +140,7 @@ export default function About() {
     >
       {/* Section Header */}
       <div className="mb-10 flex flex-col gap-1.5">
-        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-foreground border-l-4 border-l-accent pl-4">
+        <h2 className="text-2xl md:text-3xl lg:text-5xl font-black tracking-tight text-foreground border-l-4 border-l-accent pl-4">
           About <span className="text-accent">Me</span>
         </h2>
         <p className="text-sm md:text-base text-foreground/70 max-w-2xl font-sans mt-1">
@@ -290,7 +290,7 @@ export default function About() {
       
       {/* POPUP MODAL: Theme-Consistent Dark Glass Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-background/10 backdrop-blur-[2px] animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-5000 flex items-center justify-center p-4 md:p-6 bg-background/10 backdrop-blur-[2px] animate-in fade-in duration-200">
           <div className="relative w-full max-w-3xl max-h-[90vh] rounded-2xl border border-border/40 bg-background-elevated/95 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col text-foreground">
             {/* Modal Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border/30 bg-background-elevated/50">
