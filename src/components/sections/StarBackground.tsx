@@ -9,12 +9,9 @@ export default function StarBackground() {
       aria-hidden="true"
       style={{
         position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: "100vw",
-        height: "100vh",
+        inset: 0,
+        // no width/height: 100vw/100vh — inset:0 already fills the real viewport
+        // and avoids the scrollbar-inclusive vw/vh overflow bug
         zIndex: 0,
         pointerEvents: "none",
         overflow: "hidden",

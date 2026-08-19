@@ -23,12 +23,50 @@ const sectionIds = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
+  const [isVisible, setIsVisible] = useState(true);
   const pathname = usePathname();
 
   // Morph button refs
   const topBarRef = useRef<HTMLSpanElement>(null);
   const middleBarRef = useRef<HTMLSpanElement>(null);
   const bottomBarRef = useRef<HTMLSpanElement>(null);
+
+  // Scroll direction detection + Mouse hover near top detector
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Keep navbar visible near the very top of the page
+      if (currentScrollY <= 60) {
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY + 5) {
+        // Scrolling DOWN -> hide navbar
+        setIsVisible(false);
+      } else if (currentScrollY < lastScrollY - 5) {
+        // Scrolling UP -> show navbar
+        setIsVisible(true);
+      }
+
+      lastScrollY = currentScrollY;
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      // Hover near top 60px -> bring navbar back into view
+      if (e.clientY <= 60) {
+        setIsVisible(true);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
 
   // Active section tracking with ScrollTrigger
   useEffect(() => {
@@ -104,7 +142,11 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 h-20 flex items-center justify-between px-6 md:px-12 bg-background/60 backdrop-blur-md border-b border-border/30 z-[1000] select-none">
+      <header
+        className={`fixed top-0 left-0 right-0 h-20 flex items-center justify-between px-6 md:px-12 bg-accent/[0.03] backdrop-blur-md border-b border-border/30 z-[1000] select-none transition-transform duration-300 ${
+          isVisible || isOpen ? "translate-y-0" : "-translate-y-full"
+        }`}
+      >
         {/* Left: Wordmark Logo */}
         <Link
           href="/#hero"
