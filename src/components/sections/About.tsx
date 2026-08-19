@@ -1,216 +1,511 @@
+// About.tsx
 "use client";
 
 import Image from "next/image";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Terminal, Code, Database } from "lucide-react";
+import { FileText, MapPin, X, Mail, Download, ExternalLink, GraduationCap, Code2, ShieldCheck } from "lucide-react";
 import { ANIM_CONFIG } from "@/lib/animation-config";
+import { GiThunderBlade } from "react-icons/gi";
+import { LiaLinkedin } from "react-icons/lia";
 
-// Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
+
+/** Four cyan HUD corner brackets framing the avatar card */
+function HUDCornerBrackets() {
+  return (
+    <>
+      <span className="pointer-events-none absolute left-3 top-3 h-3.5 w-3.5 border-l-2 border-t-2 border-accent/80 z-20" />
+      <span className="pointer-events-none absolute right-3 top-3 h-3.5 w-3.5 border-r-2 border-t-2 border-accent/80 z-20" />
+      <span className="pointer-events-none absolute bottom-3 left-3 h-3.5 w-3.5 border-b-2 border-l-2 border-accent/80 z-20" />
+      <span className="pointer-events-none absolute bottom-3 right-3 h-3.5 w-3.5 border-b-2 border-r-2 border-accent/80 z-20" />
+    </>
+  );
+}
 
 export default function About() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const photoRef = useRef<HTMLDivElement>(null);
-  const photoRingRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-  const listItemsRef = useRef<HTMLDivElement>(null);
+  const photoCardRef = useRef<HTMLDivElement>(null);
+  const scanlineRef = useRef<HTMLDivElement>(null);
+  const glassCardRef = useRef<HTMLDivElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // HeroCard-style Top-to-Bottom Scanline Animation (Slower scan rate: 4.5s duration)
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) return;
 
-    // Organic shape blob slow float animation
-    let floatTween: gsap.core.Tween;
-    let ringRotateTween: gsap.core.Tween;
+    let scanTween: gsap.core.Tween;
 
-    if (!prefersReducedMotion && photoRef.current) {
-      const innerBlob = photoRef.current.querySelector(".organic-blob");
-      if (innerBlob) {
-        floatTween = gsap.to(innerBlob, {
-          y: -10,
-          rotate: 3,
+    if (scanlineRef.current) {
+      scanTween = gsap.fromTo(
+        scanlineRef.current,
+        { yPercent: -120, opacity: 0 },
+        {
+          yPercent: 700,
+          opacity: 1,
           duration: 3.5,
           repeat: -1,
-          yoyo: true,
+          repeatDelay: 1,
           ease: "power1.inOut",
-        });
-      }
+        }
+      );
     }
 
-    if (!prefersReducedMotion && photoRingRef.current) {
-      ringRotateTween = gsap.to(photoRingRef.current, {
-        rotate: 360,
-        duration: 28,
-        repeat: -1,
-        ease: "none",
-        transformOrigin: "50% 50%",
-      });
-    }
+    return () => {
+      if (scanTween) scanTween.kill();
+    };
+  }, []);
 
-    // Scroll Trigger reveals
+  // ScrollReveal Animations
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const triggers: ScrollTrigger[] = [];
 
     if (prefersReducedMotion) {
-      // Instant reveal
-      gsap.set([photoRef.current, textRef.current, listItemsRef.current], { opacity: 1 });
+      gsap.set([photoCardRef.current, glassCardRef.current], { opacity: 1 });
     } else {
-      // Photo reveal
-      if (photoRef.current) {
-         const photoTrigger = ScrollTrigger.create({
-          trigger: photoRef.current,
+      if (photoCardRef.current) {
+        const photoTrigger = ScrollTrigger.create({
+          trigger: photoCardRef.current,
           start: "top bottom-=80",
           onEnter: () => {
             gsap.fromTo(
-              photoRef.current,
-              { opacity: 0, scale: 0.95 },
-              { opacity: 1, scale: 1, duration: ANIM_CONFIG.duration, ease: ANIM_CONFIG.ease }
+              photoCardRef.current,
+              { opacity: 0, y: 25 },
+              { opacity: 1, y: 0, duration: ANIM_CONFIG.duration, ease: ANIM_CONFIG.ease }
             );
           },
         });
         triggers.push(photoTrigger);
       }
 
-      // Text block reveal (paragraph by paragraph)
-      if (textRef.current) {
-        const paragraphs = textRef.current.querySelectorAll(".reveal-text");
-        const textTrigger = ScrollTrigger.create({
-          trigger: textRef.current,
+      if (glassCardRef.current) {
+        const glassTrigger = ScrollTrigger.create({
+          trigger: glassCardRef.current,
           start: "top bottom-=80",
           onEnter: () => {
             gsap.fromTo(
-              paragraphs,
-              { opacity: 0, y: 20 },
-              { opacity: 1, y: 0, duration: ANIM_CONFIG.duration, stagger: ANIM_CONFIG.stagger, ease: ANIM_CONFIG.ease }
+              glassCardRef.current,
+              { opacity: 0, y: 25 },
+              { opacity: 1, y: 0, duration: ANIM_CONFIG.duration, delay: 0.15, ease: ANIM_CONFIG.ease }
             );
           },
         });
-        triggers.push(textTrigger);
+        triggers.push(glassTrigger);
       }
 
-      // Bullets reveal
-      if (listItemsRef.current) {
-        const items = listItemsRef.current.querySelectorAll(".reveal-item");
-        const itemsTrigger = ScrollTrigger.create({
-          trigger: listItemsRef.current,
-          start: "top bottom-=80",
+      if (statsRef.current) {
+        const stats = statsRef.current.querySelectorAll(".stat-item");
+        const statsTrigger = ScrollTrigger.create({
+          trigger: statsRef.current,
+          start: "top bottom-=50",
           onEnter: () => {
             gsap.fromTo(
-              items,
-              { opacity: 0, x: -15 },
-              { opacity: 1, x: 0, duration: ANIM_CONFIG.duration, stagger: 0.1, ease: ANIM_CONFIG.ease }
+              stats,
+              { opacity: 0, y: 15 },
+              { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: "power2.out" }
             );
           },
         });
-        triggers.push(itemsTrigger);
+        triggers.push(statsTrigger);
       }
     }
 
     return () => {
-      if (floatTween) floatTween.kill();
-      if (ringRotateTween) ringRotateTween.kill();
       triggers.forEach((t) => t.kill());
     };
   }, []);
+
+  // Prevent background body scroll when modal is active
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isModalOpen]);
 
   return (
     <section
       id="about"
       ref={containerRef}
-      className="py-16 px-6 md:py-24 max-w-5xl mx-auto w-full flex flex-col justify-center border-t border-border/10 select-none"
+      className="py-16 px-4 md:px-8 max-w-6xl mx-auto w-full flex flex-col justify-center select-none relative"
     >
-      <div className="grid grid-cols-1 gap-12 items-center w-full">
-        {/* Profile photo centered at top */}
-        <div
-          ref={photoRef}
-          className="flex justify-center opacity-0"
-        >
+      {/* Section Header */}
+      <div className="mb-10 flex flex-col gap-1.5">
+        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-foreground border-l-4 border-l-accent pl-4">
+          About <span className="text-accent">Me</span>
+        </h2>
+        <p className="text-sm md:text-base text-foreground/70 max-w-2xl font-sans mt-1">
+          Frontend-focused MERN developer building responsive, accessible, and high-performance web applications with modern web technologies.
+        </p>
+      </div>
+
+      {/* Main Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch w-full">
+        {/* LEFT COLUMN: Futuristic HUD Scanning Photo Section */}
+        <div className="lg:col-span-4 flex flex-col justify-between gap-4">
           <div
-            data-cursor="card"
-            className="organic-blob relative w-64 h-64 md:w-80 md:h-80 bg-background-elevated/30 border-2 border-dashed border-accent/40 rounded-[30%_70%_70%_30%_/_30%_30%_70%_70%] overflow-hidden shadow-2xl transition-colors duration-300"
+            ref={photoCardRef}
+            className="group relative w-full h-[420px] rounded-2xl border border-border/30 bg-accent/[0.03] backdrop-blur-sm p-4 overflow-hidden flex flex-col justify-between shadow-xl transition-all duration-300 hover:border-accent/40"
           >
-            <div className="absolute inset-0">
+            <HUDCornerBrackets />
+
+            {/* Status Badge: Top Left */}
+            <div className="z-10 flex items-center gap-2 self-start rounded-md border border-border/40 bg-background/60 backdrop-blur-md px-2.5 py-1 text-[11px] font-mono text-foreground/90 shadow-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>build: passing</span>
+            </div>
+
+            {/* Photo Container */}
+            <div className="absolute inset-0 z-0 overflow-hidden rounded-2xl">
               <Image
                 src="/images/avatar2.jpg"
-                alt="Lingkon Dash portrait"
+                alt="Lingkon Dash"
                 fill
-                sizes="(max-width: 640px) 85vw, 400px"
-                className="object-cover rounded-[30%_70%_70%_30%_/_30%_30%_70%_70%] pointer-events-none"
+                sizes="(max-width: 1024px) 100vw, 380px"
+                className="object-cover object-center pointer-events-none"
               />
+              {/* Subtle dark vignette overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-background/30" />
             </div>
 
+            {/* HeroCard-Style Scanner Sweep Beam */}
             <div
-              ref={photoRingRef}
-              className="absolute inset-0 rounded-[30%_70%_70%_30%_/_30%_30%_70%_70%] border border-dashed border-accent/40 pointer-events-none"
-            />
+              ref={scanlineRef}
+              className="pointer-events-none absolute left-0 right-0 top-0 z-10 h-14 bg-gradient-to-b from-transparent via-accent/35 to-transparent mix-blend-screen shadow-[0_0_15px_var(--accent)]"
+            >
+              <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-accent shadow-[0_0_10px_var(--accent),0_0_4px_#fff]" />
+            </div>
 
-            <div className="absolute inset-0 bg-radial from-accent/8 via-transparent to-transparent opacity-30 pointer-events-none" />
+            {/* Identity Info: Bottom Left */}
+            <div className="z-10 flex flex-col gap-1.5 mt-auto">
+              <div className="inline-flex items-center gap-1.5 self-start rounded-full border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-mono uppercase tracking-wider text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                Available for hire
+              </div>
+
+              <div>
+                <h3 className="text-2xl font-bold text-foreground tracking-tight">Lingkon Dash</h3>
+                <div className="flex items-center gap-1.5 text-xs text-foreground/70 font-mono mt-0.5">
+                  <MapPin size={13} className="text-accent" />
+                  <span>Sreemangal, Sylhet · Remote-ready</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Language Proficiency Chips */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="rounded-full border border-border/30 bg-accent/[0.03] backdrop-blur-sm px-3 py-1 text-xs font-mono text-foreground/90 flex items-center gap-1.5">
+              <span>🇧🇩 Bangla</span>
+              <span className="text-foreground/50 text-[10px]">(Native)</span>
+            </div>
+            <div className="rounded-full border border-border/30 bg-accent/[0.03] backdrop-blur-sm px-3 py-1 text-xs font-mono text-foreground/90 flex items-center gap-1.5">
+              <span>🇬🇧 English</span>
+              <span className="text-foreground/50 text-[10px]">(Intermediate)</span>
+            </div>
+            <div className="rounded-full border border-border/30 bg-accent/[0.03] backdrop-blur-sm px-3 py-1 text-xs font-mono text-foreground/90 flex items-center gap-1.5">
+              <span>🇮🇳 Hindi</span>
+              <span className="text-foreground/50 text-[10px]">(Basic)</span>
+            </div>
           </div>
         </div>
 
-        {/* About details underneath */}
-        <div ref={textRef} className="flex flex-col gap-6 text-left">
-          <h2 className="reveal-text text-2xl md:text-3xl font-black tracking-tight text-foreground opacity-0 border-l-4 border-l-accent pl-4">
-            About <span className="text-accent">Me</span>
-          </h2>
-
-          <div className="flex flex-col gap-6 text-base md:text-lg text-foreground/90 leading-loose font-sans">
-            <p className="reveal-text opacity-0">
-              Hi, I'm Lingkon Dash. I am a passionate Full Stack Web Developer with hands-on experience building scalable, user-friendly web applications using MongoDB, Express.js, Next.js, and Node.js. My focus is on writing clean, maintainable code and crafting intuitive, user-centric interfaces.
-            </p>
-            
-            <p className="reveal-text opacity-0">
-              I have a solid foundation in JavaScript, REST APIs, Git, and Tailwind CSS, and I enjoy the challenge of turning complex logic into functional, production-ready projects. Whether it's building interactive features or structuring scalable backend systems, I am driven by continuous learning and problem-solving.
-            </p>
-          </div>
-
-          {/* List items block */}
-          <div ref={listItemsRef} className="flex flex-col gap-5 mt-4">
-            <h3 className="text-sm md:text-[0.88rem] font-mono uppercase tracking-wider text-accent font-bold">
-              What I bring to the table:
+        {/* RIGHT COLUMN: Clean Transparent Dark Details Card */}
+        <div
+          ref={glassCardRef}
+          className="lg:col-span-8 rounded-2xl border border-border/30 bg-accent/[0.03] backdrop-blur-[2px] p-6 md:p-8 flex flex-col justify-between gap-8 shadow-xl relative overflow-hidden"
+        >
+          {/* Top Row: Heading & Full Profile Trigger */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h3 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
+              Building the <br />
+              <span className="text-accent">Modern Web Stack</span>
             </h3>
 
-            <div className="grid grid-cols-1 gap-4 font-sans">
-              {/* Bullet 1 */}
-              <div className="reveal-item flex gap-3 items-start text-base text-foreground/90 opacity-0">
-                <div className="mt-0.5 p-2 rounded-2xl bg-accent/10 text-accent shadow-[0_0_12px_rgba(56,189,248,0.11)]">
-                  <Code size={18} />
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-accent/90 hover:bg-accent px-4 py-2 text-xs font-mono uppercase font-bold text-accent-foreground tracking-wider transition-all duration-200 self-start sm:self-auto shadow-sm active:scale-95 cursor-pointer"
+            >
+              <FileText size={14} />
+              <span>Load Full Profile</span>
+              <span className="text-xs">›</span>
+            </button>
+          </div>
+
+          {/* Core Descriptive Text */}
+          <div className="flex flex-col gap-4 text-sm md:text-base text-foreground/80 leading-relaxed font-sans">
+            <p>
+              I&apos;m a <strong className="text-foreground font-semibold">Full Stack Web Developer (MERN)</strong> specializing in building scalable web applications through a structured, step-by-step development process. My focus is on writing clean, maintainable code and building interfaces that deliver real value.
+            </p>
+            <p>
+              With hands-on experience across <span className="text-accent font-mono font-medium">Next.js</span>, <span className="text-accent font-mono font-medium">Node.js</span>, and <span className="text-accent font-mono font-medium">MongoDB</span> ecosystems, I build complete end-to-end systems: role-based authentication, REST APIs, payment integrations, and AI-assisted agents.
+            </p>
+          </div>
+
+          <div className="h-px w-full bg-border/20" />
+
+          {/* Bottom Metrics Grid */}
+          <div ref={statsRef} className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="stat-item flex flex-col gap-1">
+              <span className="text-2xl md:text-3xl font-black text-foreground font-mono">15+</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/50">
+                Projects Built
+              </span>
+            </div>
+
+            <div className="stat-item flex flex-col gap-1">
+              <span className="text-2xl md:text-3xl font-black text-foreground font-mono">MERN</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/50">
+                Core Tech Stack
+              </span>
+            </div>
+
+            {/* HSC graduation year */}
+            <div className="stat-item flex flex-col gap-1">
+              <span className="text-2xl md:text-3xl font-black text-foreground font-mono">2023</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/50">
+                HSC Graduated
+              </span>
+            </div>
+
+            <div className="stat-item flex flex-col gap-1">
+              <span className="text-2xl md:text-3xl font-black text-foreground font-mono">100%</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/50">
+                Clean Code
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* POPUP MODAL: Theme-Consistent Dark Glass Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-background/10 backdrop-blur-[2px] animate-in fade-in duration-200">
+          <div className="relative w-full max-w-3xl max-h-[90vh] rounded-2xl border border-border/40 bg-background-elevated/95 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col text-foreground">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border/30 bg-background-elevated/50">
+              <span className="font-mono text-xs text-foreground/60 tracking-wider">
+                &gt;_ whoami
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="p-1 rounded-full text-foreground/60 hover:text-foreground hover:bg-border/30 transition-colors"
+                aria-label="Close modal"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Scrollable Body */}
+            <div className="p-6 md:p-8 overflow-y-auto font-sans flex flex-col gap-8 text-sm md:text-base text-foreground/80">
+              {/* Header Info */}
+              <div className="flex flex-col gap-2">
+                <h2 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
+                  Lingkon Dash
+                </h2>
+                <p className="text-accent font-mono text-sm font-semibold">
+                  Full Stack Web Developer (MERN)
+                </p>
+                <p className="text-xs text-foreground/60 font-mono">
+                  Sreemangal, Sylhet, Bangladesh · lingkondashdev@gmail.com · +8801776572194
+                </p>
+                <p className="text-sm text-foreground/80 leading-relaxed mt-2">
+                  Full Stack Developer (MERN) specializing in building scalable web applications through a structured, step-by-step development process, with strong problem-solving abilities and a goal of creating efficient, modern digital products.
+                </p>
+              </div>
+
+              {/* Education & Training Section */}
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-accent font-bold">
+                  <GraduationCap size={16} />
+                  <span>Education & Training</span>
                 </div>
-                <div className="leading-relaxed">
-                  <strong className="text-foreground font-semibold">Frontend Development:</strong>{" "}
-                  Building dynamic, responsive user interfaces with React and Tailwind CSS.
+                <div className="pl-3 border-l-2 border-border/40 flex flex-col gap-3">
+                  <div>
+                    <h4 className="text-sm font-bold text-foreground">Programming Hero — Web Development</h4>
+                    <p className="text-xs text-foreground/60 font-mono">Batch 13 · In Progress</p>
+                  </div>
+                  {/* HSC details */}
+                  <div>
+                    <h4 className="text-sm font-bold text-foreground">Higher Secondary Certificate (HSC)</h4>
+                    <p className="text-xs text-foreground/60 font-mono">Vunobir Dhasarat High School and College · 2023</p>
+                  </div>
                 </div>
               </div>
 
-              {/* Bullet 2 */}
-              <div className="reveal-item flex gap-3 items-start text-base text-foreground/90 opacity-0">
-                <div className="mt-0.5 p-2 rounded-2xl bg-accent/10 text-accent shadow-[0_0_12px_rgba(56,189,248,0.11)]">
-                  <Terminal size={18} />
+              {/* Technical Skills Section */}
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-accent font-bold">
+                  <Code2 size={16} />
+                  <span>Technical Skills</span>
                 </div>
-                <div className="leading-relaxed">
-                  <strong className="text-foreground font-semibold">JavaScript & Problem-Solving:</strong>{" "}
-                  Sharpening my logic through consistent practice on LeetCode.
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-mono">
+                  <div className="p-2.5 rounded-lg border border-border/30 bg-accent/5">
+                    <strong className="text-foreground">Languages:</strong> JavaScript, TypeScript (Learning)
+                  </div>
+                  <div className="p-2.5 rounded-lg border border-border/30 bg-accent/5">
+                    <strong className="text-foreground">Frontend:</strong> React.js, Next.js, Tailwind CSS, HeroUI, DaisyUI
+                  </div>
+                  <div className="p-2.5 rounded-lg border border-border/30 bg-accent/5">
+                    <strong className="text-foreground">Backend & DB:</strong> Node.js, Express.js, MongoDB
+                  </div>
+                  <div className="p-2.5 rounded-lg border border-border/30 bg-accent/5">
+                    <strong className="text-foreground">Auth & Tools:</strong> BetterAuth, JWT, Git, GitHub, Vercel, Netlify
+                  </div>
                 </div>
               </div>
 
-              {/* Bullet 3 */}
-              <div className="reveal-item flex gap-3 items-start text-base text-foreground/90 opacity-0">
-                <div className="mt-0.5 p-2 rounded-2xl bg-accent/10 text-accent shadow-[0_0_12px_rgba(56,189,248,0.11)]">
-                  <Database size={18} />
+              {/* Featured Projects Section */}
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-accent font-bold">
+                  <ShieldCheck size={16} />
+                  <span>Featured Projects</span>
                 </div>
-                <div className="leading-relaxed">
-                  <strong className="text-foreground font-semibold">Backend Fundamentals:</strong>{" "}
-                  Working with Node.js, Express, and MongoDB to power full-stack applications.
+
+                <div className="flex flex-col gap-4">
+                  {/* Project 1 */}
+                  <div className="p-4 rounded-xl border border-border/30 bg-accent/5 flex flex-col gap-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h4 className="font-bold text-foreground text-base">BookHub — Online Book Delivery Platform</h4>
+                      <div className="flex items-center gap-2 text-xs font-mono text-accent">
+                        <a href="https://bookhub-ph.web.app/" target="_blank" rel="noreferrer" className="hover:underline flex items-center gap-1">Live <ExternalLink size={11} /></a>
+                      </div>
+                    </div>
+                    <ul className="list-disc list-inside text-xs text-foreground/80 space-y-1">
+                      <li>Role-based ecosystem (Reader, Librarian, Admin) with search, filter & sort.</li>
+                      <li>Integrated Stripe payments with full delivery lifecycle tracking.</li>
+                      <li>Implemented Better Auth and admin approval workflow for listings.</li>
+                    </ul>
+                    <p className="text-[11px] font-mono text-foreground/50 mt-1">
+                      Tech: Next.js, Tailwind CSS, HeroUI, Better Auth, Stripe.js, Recharts, Express.js, MongoDB
+                    </p>
+                  </div>
+
+                  {/* Project 2 */}
+                  <div className="p-4 rounded-xl border border-border/30 bg-accent/5 flex flex-col gap-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h4 className="font-bold text-foreground text-base">Recipe Hut — AI-Powered Recipe Platform</h4>
+                      <div className="flex items-center gap-2 text-xs font-mono text-accent">
+                        <a href="https://recipe-hut-ai.vercel.app/" target="_blank" rel="noreferrer" className="hover:underline flex items-center gap-1">Live <ExternalLink size={11} /></a>
+                      </div>
+                    </div>
+                    <ul className="list-disc list-inside text-xs text-foreground/80 space-y-1">
+                      <li>Built two agentic AI systems — Groq chat assistant & Gemini pantry agent.</li>
+                      <li>Implemented full-text search, filtering & Recharts nutrition visualization.</li>
+                      <li>Added full recipe CRUD with Better Auth login and GSAP animations.</li>
+                    </ul>
+                    <p className="text-[11px] font-mono text-foreground/50 mt-1">
+                      Tech: Next.js (App Router), TypeScript, Tailwind CSS, Better Auth, MongoDB Atlas, Groq & Gemini APIs
+                    </p>
+                  </div>
+
+                  {/* Project 3 */}
+                  <div className="p-4 rounded-xl border border-border/30 bg-accent/5 flex flex-col gap-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h4 className="font-bold text-foreground text-base">SpaceSync — Co-Working Booking Platform</h4>
+                      <div className="flex items-center gap-2 text-xs font-mono text-accent">
+                        <a href="https://spacesync-dev.vercel.app/" target="_blank" rel="noreferrer" className="hover:underline flex items-center gap-1">Live <ExternalLink size={11} /></a>
+                      </div>
+                    </div>
+                    <ul className="list-disc list-inside text-xs text-foreground/80 space-y-1">
+                      <li>Engineered three-role system (User, Host, Admin) in typed TypeScript.</li>
+                      <li>Built server-driven search, filtering & pagination with request-based booking.</li>
+                    </ul>
+                    <p className="text-[11px] font-mono text-foreground/50 mt-1">
+                      Tech: Next.js 15, TypeScript, Tailwind CSS v4, Better Auth, GSAP, Recharts, Express.js, MongoDB Atlas
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Progress Bar Style Languages */}
+              <div className="flex flex-col gap-3">
+                <span className="font-mono text-xs uppercase tracking-wider text-accent font-bold">Languages</span>
+                <div className="flex flex-col gap-2 font-mono text-xs">
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span>Bangla</span>
+                      <span className="text-foreground/50">Native</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-border/20 rounded-full overflow-hidden">
+                      <div className="h-full bg-accent w-full" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span>English</span>
+                      <span className="text-foreground/50">Intermediate</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-border/20 rounded-full overflow-hidden">
+                      <div className="h-full bg-accent w-[70%]" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span>Hindi</span>
+                      <span className="text-foreground/50">Basic</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-border/20 rounded-full overflow-hidden">
+                      <div className="h-full bg-accent w-[40%]" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <p className="reveal-text text-base md:text-lg text-foreground/90 leading-loose font-sans mt-4 opacity-0">
-            I have recently completed my learning journey and worked on several production-level projects. I am highly motivated, disciplined, and currently open for work — looking for remote frontend or junior/mid-level full-stack roles where I can grow, contribute, and build impactful web projects.
-          </p>
+            {/* Modal Footer */}
+            <div className="p-4 md:px-8 border-t border-border/30 bg-background-elevated/80 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <a
+                  href="https://github.com/lingkondash"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/30 text-xs font-mono hover:border-accent hover:text-accent transition-colors"
+                >
+                  <GiThunderBlade size={13} />
+                  <span>GitHub</span>
+                </a>
+                <a
+                  href="https://linkedin.com/in/lingkondash"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/30 text-xs font-mono hover:border-accent hover:text-accent transition-colors"
+                >
+                  <LiaLinkedin size={13} />
+                  <span>LinkedIn</span>
+                </a>
+                <a
+                  href="mailto:lingkondashdev@gmail.com"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/30 text-xs font-mono hover:border-accent hover:text-accent transition-colors"
+                >
+                  <Mail size={13} />
+                  <span>Email</span>
+                </a>
+              </div>
+
+              <a
+                href="/resume.pdf"
+                download
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent text-accent-foreground text-xs font-mono font-bold tracking-wider hover:bg-accent/90 transition-all active:scale-95"
+              >
+                <span>Resume</span>
+                <Download size={14} />
+              </a>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }

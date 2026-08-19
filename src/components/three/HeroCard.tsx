@@ -174,7 +174,7 @@ export default function HeroCard() {
         />
 
         <Image
-          src="/images/avatar.jpg"
+          src="/images/avatar3.jpg"
           alt="Lingkon Dash"
           fill
           sizes="(max-width: 340px) 90vw, 300px"
