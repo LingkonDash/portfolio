@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   MessageCircle,
   Mail,
+  Phone,
   MapPin,
   ArrowRight,
   ArrowLeft,
@@ -193,6 +194,12 @@ export default function Contact() {
                   lingkondashdev@gmail.com
                 </a>
               </div>
+              <div className="flex items-center gap-3 text-foreground/75 hover:text-accent transition-colors duration-200">
+                <Phone size={18} className="text-accent" />
+                <a href="tel:+8801776572194" data-cursor="link">
+                  +880 1776-572194
+                </a>
+              </div>
               <div className="flex items-center gap-3 text-foreground/75">
                 <MapPin size={18} className="text-accent" />
                 <span>Sreemangal, Bangladesh</span>
@@ -200,7 +207,7 @@ export default function Contact() {
             </div>
 
             {/* Dark Space-themed Interactive Map Container */}
-            <div className="relative rounded-2xl overflow-hidden border border-border/40 bg-background-elevated/30 p-2 shadow-xl">
+            <div className="relative rounded-2xl overflow-hidden border border-border/30 bg-accent/[0.03] backdrop-blur-sm p-2 shadow-xl">
               <iframe
                 title="Sreemangal Location Map"
                 src="https://maps.google.com/maps?q=Sreemangal&t=&z=13&ie=UTF8&iwloc=&output=embed"
@@ -220,7 +227,7 @@ export default function Contact() {
 
           {/* Right Column: Stepped Glassmorphic Form Card */}
           <div className="lg:col-span-7" ref={formContainerRef}>
-            <div className="relative bg-background-elevated/20 backdrop-blur-md border border-border/30 rounded-3xl p-8 shadow-2xl min-h-[340px] flex flex-col justify-between">
+            <div className="relative border border-border/30 bg-accent/[0.03] backdrop-blur-sm rounded-3xl p-8 shadow-xl min-h-[340px] flex flex-col justify-between">
               {/* Step indicator */}
               {typeof step === "number" && (
                 <div className="flex justify-between items-center mb-6">

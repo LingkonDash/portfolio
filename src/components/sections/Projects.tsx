@@ -364,24 +364,35 @@ export default function Projects({ projects }: { projects: Project[] }) {
                         src={project.images[0]}
                         alt={`${project.title} preview`}
                         fill
-                        className="object-cover"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
                         sizes="(max-width: 768px) 100vw, 50vw"
                         priority={i === 0}
                       />
 
-                      <div className="absolute inset-0 bg-slate-950/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                      <div className="absolute inset-0 flex items-end justify-center p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                        <div className="w-full rounded-3xl border border-white/10 bg-background-elevated/80 backdrop-blur-xl px-4 py-4 shadow-2xl shadow-black/20">
-                          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                      {/* Transparent overlay with 2px backdrop-blur on hover */}
+                      <div className="absolute inset-0 bg-background/30 backdrop-blur-[2px] opacity-0 transition-all duration-300 group-hover:opacity-100 flex items-center justify-center p-6 z-10">
+                        {/* Centered Glass HUD Overlay Card */}
+                        <div className="relative w-full max-w-xs rounded-2xl border border-accent/40 bg-accent/[0.03] p-5 backdrop-blur-[2px] shadow-xl transform scale-95 group-hover:scale-100 transition-all duration-300 flex flex-col items-center gap-3 text-center">
+                          {/* Top HUD Badge */}
+                          <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-0.5 text-[10px] font-mono uppercase tracking-widest text-accent">
+                            <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                            Explore Project
+                          </div>
+
+                          <span className="text-xs font-mono text-foreground/70">
+                            Quick Links
+                          </span>
+
+                          <div className="flex w-full flex-col gap-2 mt-1">
                             {project.liveUrl && (
                               <a
                                 href={project.liveUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-accent/20 hover:border-accent/60"
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider text-accent-foreground shadow-lg shadow-accent/25 transition-all duration-200 hover:bg-accent/90 hover:shadow-accent/40 active:scale-95"
                               >
-                                <ExternalLink size={16} />
-                                Live demo
+                                <ExternalLink size={14} />
+                                Live Preview
                               </a>
                             )}
                             {project.repoUrl && (
@@ -389,20 +400,15 @@ export default function Projects({ projects }: { projects: Project[] }) {
                                 href={project.repoUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border/40 bg-background/90 px-4 py-2 text-sm font-semibold text-foreground transition hover:border-accent/50 hover:bg-accent/10"
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider text-accent transition-all duration-200 hover:border-accent/60 hover:bg-accent/20 active:scale-95"
                               >
-                                <GitBranch size={16} />
-                                GitHub
+                                <GitBranch size={14} />
+                                Source Code
                               </a>
                             )}
                           </div>
                         </div>
                       </div>
-
-                      <div
-                        aria-hidden="true"
-                        className="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t from-background-elevated/40 to-transparent pointer-events-none"
-                      />
                     </div>
                   </div>
 

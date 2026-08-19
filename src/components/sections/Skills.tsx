@@ -444,7 +444,7 @@ function SkillCategoryCard({
   const Icon = meta.icon;
 
   return (
-    <div className="flex h-full flex-col rounded-3xl border border-border/15 bg-background-elevated/20 p-6 backdrop-blur-xl transition-colors duration-300 hover:border-accent/25">
+    <div className="flex h-full flex-col rounded-3xl border border-accent/20 bg-accent/03 p-6 backdrop-blur-sm shadow-xl transition-colors duration-300 hover:border-accent/50">
       <div className="flex items-center justify-between mb-5">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/20 text-accent">
           <Icon size={16} />
@@ -467,7 +467,7 @@ function SkillCategoryCard({
           return (
             <span
               key={skill.id}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border/20 bg-background/40 px-3 py-1.5 text-xs font-medium text-foreground/90"
+              className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-background/80 px-3 py-1.5 text-xs font-mono text-foreground/80"
             >
               {skill.iconUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element

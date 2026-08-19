@@ -166,7 +166,7 @@ export default function ProjectDetailClient({ project, nextProject }: Props) {
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-20 px-4 md:px-8">
         <section
           ref={heroImageRef}
-          className="relative overflow-hidden rounded-[2.5rem] border border-border/20 bg-background-elevated/60 backdrop-blur-xl p-6 shadow-[0_30px_90px_rgba(0,0,0,0.35)] md:p-10"
+          className="relative overflow-hidden rounded-[2.5rem] border border-border/30 bg-accent/[0.03] backdrop-blur-sm p-6 shadow-xl md:p-10"
         >
           <div
             ref={heroBackRef}
@@ -190,7 +190,7 @@ export default function ProjectDetailClient({ project, nextProject }: Props) {
             <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(420px,0.9fr)] lg:items-end">
               <div className="flex flex-col gap-6 text-left">
                 <div ref={heroEyebrowRef} className="flex flex-wrap items-center gap-3">
-                  <span className="rounded-full border border-accent/20 bg-accent/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-accent">
+                  <span className="rounded-full border border-accent/30 bg-accent/15 px-3 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-accent">
                     Project {project.number}
                   </span>
                   <div className="flex h-11 w-11 items-center justify-center rounded-3xl bg-accent/10 text-accent shadow-sm shadow-accent/5">
@@ -229,7 +229,7 @@ export default function ProjectDetailClient({ project, nextProject }: Props) {
                     target="_blank"
                     rel="noopener noreferrer"
                     data-cursor="button"
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-accent bg-background/90 px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-foreground transition duration-200 hover:bg-accent/10"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border text-accent border-accent bg-accent/5 px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] transition duration-200 hover:bg-accent/20"
                   >
                     <GitBranch size={16} />
                     View Code
@@ -237,7 +237,7 @@ export default function ProjectDetailClient({ project, nextProject }: Props) {
                 </div>
               </div>
 
-              <div className="relative overflow-hidden rounded-[2rem] border border-border/20 bg-background/40 aspect-[4/3] min-h-[340px] shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+              <div className="relative overflow-hidden rounded-[2rem] border border-border/30 bg-accent/[0.03] aspect-[4/3] min-h-[340px] shadow-xl">
                 <Image
                   src={project.images[0]}
                   alt={`${project.title} preview`}
@@ -258,7 +258,7 @@ export default function ProjectDetailClient({ project, nextProject }: Props) {
                 key={tech}
                 data-reveal
                 data-cursor="card"
-                className="inline-flex items-center rounded-full border border-accent/20 bg-accent/10 backdrop-blur-md px-4 py-2 text-sm font-semibold text-foreground transition duration-200 hover:border-accent/40 hover:bg-accent/15"
+                className="inline-flex items-center rounded-full border border-border/30 bg-accent/[0.03] backdrop-blur-sm px-4 py-2 text-sm font-mono text-foreground/90 transition duration-200 hover:border-accent/40 hover:bg-accent/10"
               >
                 {tech}
               </div>
@@ -299,7 +299,7 @@ export default function ProjectDetailClient({ project, nextProject }: Props) {
                 <div
                   data-reveal
                   data-cursor="card"
-                  className="flex flex-col gap-4 rounded-[2rem] border border-border/20 bg-background-elevated/60 backdrop-blur-xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.3)]"
+                  className="flex flex-col gap-4 rounded-[2rem] border border-border/30 bg-accent/[0.03] backdrop-blur-sm p-8 shadow-xl"
                 >
                   <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent/10 text-accent">
                     <AlertTriangle size={20} strokeWidth={1.5} />
@@ -313,7 +313,7 @@ export default function ProjectDetailClient({ project, nextProject }: Props) {
                 <div
                   data-reveal
                   data-cursor="card"
-                  className="flex flex-col gap-4 rounded-[2rem] border border-border/20 bg-background-elevated/60 backdrop-blur-xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.3)]"
+                  className="flex flex-col gap-4 rounded-[2rem] border border-border/30 bg-accent/[0.03] backdrop-blur-sm p-8 shadow-xl"
                 >
                   <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent/10 text-accent">
                     <Rocket size={20} strokeWidth={1.5} />
@@ -344,7 +344,7 @@ export default function ProjectDetailClient({ project, nextProject }: Props) {
                   key={image}
                   data-reveal
                   data-cursor="card"
-                  className="group relative overflow-hidden rounded-[2rem] border border-border/10 bg-background-elevated/40 backdrop-blur-md shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_30px_70px_rgba(0,0,0,0.4)]"
+                  className="group relative overflow-hidden rounded-[2rem] border border-border/30 bg-accent/[0.03] backdrop-blur-sm shadow-xl transition-transform duration-300 hover:-translate-y-1 hover:border-accent/40"
                 >
                   <div className="aspect-[4/3] w-full overflow-hidden rounded-[2rem]">
                     <Image
@@ -365,7 +365,7 @@ export default function ProjectDetailClient({ project, nextProject }: Props) {
           <Link
             href={`/projects/${nextProject.slug}`}
             data-cursor="button"
-            className="group block overflow-hidden rounded-[2.5rem] border border-border/20 bg-background-elevated/60 backdrop-blur-xl p-6 transition duration-300 hover:-translate-y-1 hover:border-accent/40 md:p-8"
+            className="group block overflow-hidden rounded-[2.5rem] border border-border/30 bg-accent/[0.03] backdrop-blur-sm p-6 transition duration-300 hover:-translate-y-1 hover:border-accent/40 md:p-8 shadow-xl"
           >
             <div className="grid gap-6 grid-cols-1 lg:grid-cols-[1fr_auto] lg:items-center">
               <div className="space-y-4">
@@ -379,7 +379,7 @@ export default function ProjectDetailClient({ project, nextProject }: Props) {
                 </div>
               </div>
 
-              <div className="relative mx-auto w-full max-w-[280px] overflow-hidden rounded-[2rem] border border-border/20 bg-background/40 aspect-[4/3] min-h-[220px] shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+              <div className="relative mx-auto w-full max-w-[280px] overflow-hidden rounded-[2rem] border border-border/30 bg-accent/[0.03] aspect-[4/3] min-h-[220px] shadow-xl">
                 <Image
                   src={nextProject.images[0]}
                   alt={`Preview of ${nextProject.title}`}

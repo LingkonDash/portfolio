@@ -269,7 +269,7 @@ export default function Journey({ education }: JourneyProps) {
                     {CORE_TECH.map((tech) => (
                       <span
                         key={tech}
-                        className="rounded-full border border-border/30 bg-background-elevated px-3 py-1 text-xs font-mono text-foreground/80"
+                        className="rounded-full border border-accent/30 bg-accent/10 px-2.5 py-1 text-[11px] font-mono uppercase tracking-wider text-accent"
                       >
                         {tech}
                       </span>
@@ -298,7 +298,7 @@ export default function Journey({ education }: JourneyProps) {
                   {CURRENTLY_LEARNING.map((skill) => (
                     <div
                       key={skill.label}
-                      className="flex items-start gap-2 rounded-lg border border-border/20 bg-background-elevated/60 px-3 py-2.5 backdrop-blur-sm"
+                      className="flex items-start gap-2 rounded-lg border border-accent/50 bg-accent/5 p-4 backdrop-blur-sm"
                     >
                       <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent animate-pulse" />
                       <div className="min-w-0">

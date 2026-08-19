@@ -288,19 +288,21 @@ export default function About() {
         </div>
       </div>
       
-      {/* POPUP MODAL: Theme-Consistent Dark Glass Modal */}
+      {/* POPUP MODAL: Theme-Consistent Futuristic HUD Dark Glass Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-5000 flex items-center justify-center p-4 md:p-6 bg-background/10 backdrop-blur-[2px] animate-in fade-in duration-200">
-          <div className="relative w-full max-w-3xl max-h-[90vh] rounded-2xl border border-border/40 bg-background-elevated/95 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col text-foreground">
+        <div className="fixed inset-0 z-5000 flex items-center justify-center p-4 md:p-6 bg-background/30 backdrop-blur-[2px] animate-in fade-in duration-200">
+          <div className="relative w-full max-w-3xl max-h-[90vh] rounded-2xl border border-accent/40 bg-background/95 backdrop-blur-md shadow-[0_0_50px_rgba(56,189,248,0.15)] overflow-hidden flex flex-col text-foreground">
+            <HUDCornerBrackets />
+
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border/30 bg-background-elevated/50">
-              <span className="font-mono text-xs text-foreground/60 tracking-wider">
-                &gt;_ whoami
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border/30 bg-accent/[0.03] backdrop-blur-sm z-10">
+              <span className="font-mono text-xs text-accent tracking-wider font-semibold">
+                &gt;_ whoami --full-profile
               </span>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="p-1 rounded-full text-foreground/60 hover:text-foreground hover:bg-border/30 transition-colors"
+                className="p-1 rounded-full text-foreground/60 hover:text-accent hover:bg-accent/10 transition-colors cursor-pointer"
                 aria-label="Close modal"
               >
                 <X size={20} />
@@ -308,9 +310,9 @@ export default function About() {
             </div>
 
             {/* Modal Scrollable Body */}
-            <div className="p-6 md:p-8 overflow-y-auto font-sans flex flex-col gap-8 text-sm md:text-base text-foreground/80">
+            <div className="p-6 md:p-8 overflow-y-auto font-sans flex flex-col gap-8 text-sm md:text-base text-foreground/80 z-10">
               {/* Header Info */}
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 py-1">
                 <h2 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
                   Lingkon Dash
                 </h2>
@@ -329,17 +331,16 @@ export default function About() {
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-accent font-bold">
                   <GraduationCap size={16} />
-                  <span>Education & Training</span>
+                  <span>Education &amp; Training</span>
                 </div>
-                <div className="pl-3 border-l-2 border-border/40 flex flex-col gap-3">
-                  <div>
+                <div className="flex flex-col gap-3">
+                  <div className="rounded-lg border border-accent/50 bg-accent/5 p-4 backdrop-blur-sm">
                     <h4 className="text-sm font-bold text-foreground">Programming Hero — Web Development</h4>
-                    <p className="text-xs text-foreground/60 font-mono">Batch 13 · In Progress</p>
+                    <p className="text-xs text-foreground/60 font-mono mt-1">Batch 13 · In Progress</p>
                   </div>
-                  {/* HSC details */}
-                  <div>
+                  <div className="rounded-lg border border-accent/50 bg-accent/5 p-4 backdrop-blur-sm">
                     <h4 className="text-sm font-bold text-foreground">Higher Secondary Certificate (HSC)</h4>
-                    <p className="text-xs text-foreground/60 font-mono">Vunobir Dhasarat High School and College · 2023</p>
+                    <p className="text-xs text-foreground/60 font-mono mt-1">Vunobir Dhasarat High School and College · 2023</p>
                   </div>
                 </div>
               </div>
@@ -350,18 +351,18 @@ export default function About() {
                   <Code2 size={16} />
                   <span>Technical Skills</span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-mono">
-                  <div className="p-2.5 rounded-lg border border-border/30 bg-accent/5">
-                    <strong className="text-foreground">Languages:</strong> JavaScript, TypeScript (Learning)
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs font-mono">
+                  <div className="p-3 rounded-lg border border-accent/50 bg-accent/5 backdrop-blur-sm">
+                    <strong className="text-accent font-bold">Languages:</strong> JavaScript, TypeScript (Learning)
                   </div>
-                  <div className="p-2.5 rounded-lg border border-border/30 bg-accent/5">
-                    <strong className="text-foreground">Frontend:</strong> React.js, Next.js, Tailwind CSS, HeroUI, DaisyUI
+                  <div className="p-3 rounded-lg border border-accent/50 bg-accent/5 backdrop-blur-sm">
+                    <strong className="text-accent font-bold">Frontend:</strong> React.js, Next.js, Tailwind CSS, HeroUI, DaisyUI
                   </div>
-                  <div className="p-2.5 rounded-lg border border-border/30 bg-accent/5">
-                    <strong className="text-foreground">Backend & DB:</strong> Node.js, Express.js, MongoDB
+                  <div className="p-3 rounded-lg border border-accent/50 bg-accent/5 backdrop-blur-sm">
+                    <strong className="text-accent font-bold">Backend &amp; DB:</strong> Node.js, Express.js, MongoDB
                   </div>
-                  <div className="p-2.5 rounded-lg border border-border/30 bg-accent/5">
-                    <strong className="text-foreground">Auth & Tools:</strong> BetterAuth, JWT, Git, GitHub, Vercel, Netlify
+                  <div className="p-3 rounded-lg border border-accent/50 bg-accent/5 backdrop-blur-sm">
+                    <strong className="text-accent font-bold">Auth &amp; Tools:</strong> BetterAuth, JWT, Git, GitHub, Vercel, Netlify
                   </div>
                 </div>
               </div>
@@ -375,7 +376,7 @@ export default function About() {
 
                 <div className="flex flex-col gap-4">
                   {/* Project 1 */}
-                  <div className="p-4 rounded-xl border border-border/30 bg-accent/5 flex flex-col gap-2">
+                  <div className="p-4 rounded-xl border border-accent/50 bg-accent/5 backdrop-blur-sm flex flex-col gap-2">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <h4 className="font-bold text-foreground text-base">BookHub — Online Book Delivery Platform</h4>
                       <div className="flex items-center gap-2 text-xs font-mono text-accent">
@@ -383,17 +384,17 @@ export default function About() {
                       </div>
                     </div>
                     <ul className="list-disc list-inside text-xs text-foreground/80 space-y-1">
-                      <li>Role-based ecosystem (Reader, Librarian, Admin) with search, filter & sort.</li>
+                      <li>Role-based ecosystem (Reader, Librarian, Admin) with search, filter &amp; sort.</li>
                       <li>Integrated Stripe payments with full delivery lifecycle tracking.</li>
                       <li>Implemented Better Auth and admin approval workflow for listings.</li>
                     </ul>
-                    <p className="text-[11px] font-mono text-foreground/50 mt-1">
+                    <p className="text-[11px] font-mono text-accent/70 mt-1">
                       Tech: Next.js, Tailwind CSS, HeroUI, Better Auth, Stripe.js, Recharts, Express.js, MongoDB
                     </p>
                   </div>
 
                   {/* Project 2 */}
-                  <div className="p-4 rounded-xl border border-border/30 bg-accent/5 flex flex-col gap-2">
+                  <div className="p-4 rounded-xl border border-accent/50 bg-accent/5 backdrop-blur-sm flex flex-col gap-2">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <h4 className="font-bold text-foreground text-base">Recipe Hut — AI-Powered Recipe Platform</h4>
                       <div className="flex items-center gap-2 text-xs font-mono text-accent">
@@ -401,17 +402,17 @@ export default function About() {
                       </div>
                     </div>
                     <ul className="list-disc list-inside text-xs text-foreground/80 space-y-1">
-                      <li>Built two agentic AI systems — Groq chat assistant & Gemini pantry agent.</li>
-                      <li>Implemented full-text search, filtering & Recharts nutrition visualization.</li>
+                      <li>Built two agentic AI systems — Groq chat assistant &amp; Gemini pantry agent.</li>
+                      <li>Implemented full-text search, filtering &amp; Recharts nutrition visualization.</li>
                       <li>Added full recipe CRUD with Better Auth login and GSAP animations.</li>
                     </ul>
-                    <p className="text-[11px] font-mono text-foreground/50 mt-1">
-                      Tech: Next.js (App Router), TypeScript, Tailwind CSS, Better Auth, MongoDB Atlas, Groq & Gemini APIs
+                    <p className="text-[11px] font-mono text-accent/70 mt-1">
+                      Tech: Next.js (App Router), TypeScript, Tailwind CSS, Better Auth, MongoDB Atlas, Groq &amp; Gemini APIs
                     </p>
                   </div>
 
                   {/* Project 3 */}
-                  <div className="p-4 rounded-xl border border-border/30 bg-accent/5 flex flex-col gap-2">
+                  <div className="p-4 rounded-xl border border-accent/50 bg-accent/5 backdrop-blur-sm flex flex-col gap-2">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <h4 className="font-bold text-foreground text-base">SpaceSync — Co-Working Booking Platform</h4>
                       <div className="flex items-center gap-2 text-xs font-mono text-accent">
@@ -420,9 +421,9 @@ export default function About() {
                     </div>
                     <ul className="list-disc list-inside text-xs text-foreground/80 space-y-1">
                       <li>Engineered three-role system (User, Host, Admin) in typed TypeScript.</li>
-                      <li>Built server-driven search, filtering & pagination with request-based booking.</li>
+                      <li>Built server-driven search, filtering &amp; pagination with request-based booking.</li>
                     </ul>
-                    <p className="text-[11px] font-mono text-foreground/50 mt-1">
+                    <p className="text-[11px] font-mono text-accent/70 mt-1">
                       Tech: Next.js 15, TypeScript, Tailwind CSS v4, Better Auth, GSAP, Recharts, Express.js, MongoDB Atlas
                     </p>
                   </div>
@@ -465,13 +466,13 @@ export default function About() {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 md:px-8 border-t border-border/30 bg-background-elevated/80 flex flex-wrap items-center justify-between gap-4">
+            <div className="p-4 md:px-8 border-t border-border/30 bg-accent/[0.03] backdrop-blur-sm flex flex-wrap items-center justify-between gap-4 z-10">
               <div className="flex items-center gap-2">
                 <a
                   href="https://github.com/lingkondash"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/30 text-xs font-mono hover:border-accent hover:text-accent transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-xs font-mono text-accent hover:bg-accent/20 transition-colors"
                 >
                   <GiThunderBlade size={13} />
                   <span>GitHub</span>
@@ -480,14 +481,14 @@ export default function About() {
                   href="https://linkedin.com/in/lingkondash"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/30 text-xs font-mono hover:border-accent hover:text-accent transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-xs font-mono text-accent hover:bg-accent/20 transition-colors"
                 >
                   <LiaLinkedin size={13} />
                   <span>LinkedIn</span>
                 </a>
                 <a
                   href="mailto:lingkondashdev@gmail.com"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/30 text-xs font-mono hover:border-accent hover:text-accent transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-xs font-mono text-accent hover:bg-accent/20 transition-colors"
                 >
                   <Mail size={13} />
                   <span>Email</span>
@@ -497,7 +498,7 @@ export default function About() {
               <a
                 href="/resume.pdf"
                 download
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent text-accent-foreground text-xs font-mono font-bold tracking-wider hover:bg-accent/90 transition-all active:scale-95"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent text-accent-foreground text-xs font-mono font-bold tracking-wider hover:bg-accent/90 transition-all active:scale-95 shadow-md shadow-accent/20"
               >
                 <span>Resume</span>
                 <Download size={14} />
