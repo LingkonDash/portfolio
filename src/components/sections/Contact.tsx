@@ -171,7 +171,7 @@ export default function Contact() {
     >
       <div className="max-w-5xl mx-auto px-4">
         {/* Title */}
-        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-foreground mb-12 border-l-4 border-l-accent pl-4">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-foreground mb-12 border-l-4 border-l-accent pl-4">
           Let's <span className="text-accent">Connect</span>
         </h2>
 

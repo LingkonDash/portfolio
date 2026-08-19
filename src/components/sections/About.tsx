@@ -140,7 +140,7 @@ export default function About() {
     >
       {/* Section Header */}
       <div className="mb-10 flex flex-col gap-1.5">
-        <h2 className="text-2xl md:text-3xl lg:text-5xl font-black tracking-tight text-foreground border-l-4 border-l-accent pl-4">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-foreground border-l-4 border-l-accent pl-4">
           About <span className="text-accent">Me</span>
         </h2>
         <p className="text-sm md:text-base text-foreground/70 max-w-2xl font-sans mt-1">
@@ -257,7 +257,7 @@ export default function About() {
           {/* Bottom Metrics Grid */}
           <div ref={statsRef} className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="stat-item flex flex-col gap-1">
-              <span className="text-2xl md:text-3xl font-black text-foreground font-mono">15+</span>
+              <span className="text-2xl md:text-3xl font-black text-foreground font-mono">10+</span>
               <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/50">
                 Projects Built
               </span>

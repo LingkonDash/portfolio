@@ -1,16 +1,16 @@
 [
   {
-    "certificate": "Secondary School Certificate (SSC)",
-    "institution": "Monai Ullah Adarsha High School, Sreemangal",
-    "background": "Humanities",
-    "passing_year": 2021,
-    "gpa": 3.89
-  },
-  {
     "certificate": "Higher Secondary Certificate (HSC)",
     "institution": "Vunobir Dhasarath High School and College, Sreemangal",
     "background": "Humanities",
     "passing_year": 2023,
     "gpa": 4.75
+  },
+  {
+    "certificate": "Secondary School Certificate (SSC)",
+    "institution": "Monai Ullah Adarsha High School, Sreemangal",
+    "background": "Humanities",
+    "passing_year": 2021,
+    "gpa": 3.89
   }
 ]
