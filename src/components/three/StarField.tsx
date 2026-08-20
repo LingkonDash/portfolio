@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useTheme } from "next-themes";
 
 type Star = {
@@ -426,30 +426,8 @@ export default function StarField() {
       let targetY = 0;
       let targetActive = false;
 
-      if (isMobileScreen) {
-        // Automated figure-8 mobile path
-        const pathTime = time * 0.0006;
-        targetX = width * 0.5 + Math.sin(pathTime) * (width * 0.35);
-        targetY = height * 0.5 + Math.sin(pathTime * 2) * (height * 0.25);
-        targetActive = true;
-
-        // Render visible glowing waypoint target marker on mobile
-        ctx.save();
-        const glow = ctx.createRadialGradient(targetX, targetY, 1, targetX, targetY, 12);
-        glow.addColorStop(0, `${accentColor}aa`);
-        glow.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(targetX, targetY, 12, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = accentColor;
-        ctx.beginPath();
-        ctx.arc(targetX, targetY, 2.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      } else {
-        // Desktop mouse tracking
+      if (!isMobileScreen) {
+        // Desktop mouse tracking only
         targetX = pointer.x * width;
         targetY = pointer.y * height;
         targetActive = pointer.active && !isCoarsePointer;
@@ -566,7 +544,7 @@ export default function StarField() {
         const dy = targetY - ship.y;
         const dist = Math.hypot(dx, dy);
 
-        const inRange = targetActive && (isMobileScreen || dist <= followRange);
+        const inRange = !isMobileScreen && targetActive && dist <= followRange;
 
         if (inRange) {
           if (dist > orbitRadius + 5) {
@@ -594,7 +572,7 @@ export default function StarField() {
             ship.vy = Math.sin(tangentHeading) * moveSpeed;
           }
         } else {
-          // Free floating cruise when out of range or pointer inactive
+          // Free floating drift on mobile or when pointer inactive / out of range
           ship.x += ship.vx * dt;
           ship.y += ship.vy * dt;
 
