@@ -120,9 +120,10 @@ export default function Projects({ projects }: { projects: Project[] }) {
 
       // S-curve cubic bezier: start center-top → bulge right at 33% →
       //                        bulge left at 67% → end center-bottom
+      // Constrained bulges (0.72 / 0.28) so ship doesn't overflow parent container
       const d =
         `M ${w * 0.5} 0 ` +
-        `C ${w * 0.82} ${h * 0.33}, ${w * 0.18} ${h * 0.66}, ${w * 0.5} ${h}`;
+        `C ${w * 0.72} ${h * 0.33}, ${w * 0.28} ${h * 0.66}, ${w * 0.5} ${h}`;
       pathEl.setAttribute("d", d);
 
       const totalLength = pathEl.getTotalLength();
@@ -280,9 +281,14 @@ export default function Projects({ projects }: { projects: Project[] }) {
     >
       <div className="max-w-5xl mx-auto">
         {/* Section header */}
-        <h2 className="text-3xl md:text-4xl lg:text-5xl px-4 font-black tracking-tight text-foreground mb-16 md:mb-20 border-l-4 border-l-accent pl-4">
-          Selected <span className="text-accent">Projects</span>
-        </h2>
+        <div className="mb-16 md:mb-20 px-4">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-foreground border-l-4 border-l-accent pl-4">
+            Selected <span className="text-accent">Projects</span>
+          </h2>
+          <p className="text-sm md:text-base text-foreground/60 mt-3 max-w-2xl pl-4 font-sans">
+            A selection of full-stack platforms I&apos;ve designed and built end to end &mdash; from database schema to the pixels on screen.
+          </p>
+        </div>
 
         {/* Content wrapper — relative so the SVG overlay can be positioned inside */}
         <div ref={contentRef} className="relative">
@@ -359,7 +365,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
                       isEven ? "md:order-2" : "md:order-1"
                     }`}
                   >
-                    <div className="relative aspect-video rounded-2xl overflow-hidden border border-border/40 bg-background-elevated/30 shadow-2xl">
+                    <div className="relative aspect-video rounded-2xl overflow-hidden border border-border/30 bg-accent/[0.03] backdrop-blur-sm shadow-xl">
                       <Image
                         src={project.images[0]}
                         alt={`${project.title} preview`}
@@ -414,49 +420,55 @@ export default function Projects({ projects }: { projects: Project[] }) {
 
                   {/* ── Text column ─────────────────────────────────────── */}
                   <div
-                    className={`project-text flex flex-col gap-5 ${
+                    className={`project-text ${
                       isEven ? "md:order-1" : "md:order-2"
                     }`}
                   >
-                    {/* Project index label */}
-                    <span className="font-mono text-[10px] tracking-[0.35em] text-muted/40 uppercase">
-                      {project.number}&thinsp;/&thinsp;0{projects.length}
-                    </span>
-
-                    {/* Title — large typographic treatment */}
-                    <h3 className="text-3xl md:text-4xl font-black tracking-tight text-foreground leading-[0.95]">
-                      {project.title}
-                    </h3>
-
-                    {/* Description */}
-                    <p className="text-sm md:text-base text-foreground/70 leading-relaxed font-sans max-w-prose">
-                      {project.description}
-                    </p>
-
-                    <div className="flex flex-wrap gap-2">
-                      {project.techStack.map((tech) => (
-                        <span
-                          key={tech}
-                          className="inline-flex items-center rounded-full border border-accent/25 bg-accent/15 px-3 py-1 text-[11px] font-semibold text-accent"
-                        >
-                          {tech}
+                    <div className="md:aspect-video rounded-2xl border border-border/30 bg-accent/[0.03] backdrop-blur-sm p-5 md:p-6 lg:p-7 shadow-xl flex flex-col justify-between overflow-hidden">
+                      <div className="flex flex-col gap-2">
+                        {/* Project index label */}
+                        <span className="font-mono text-[10px] tracking-[0.35em] text-accent/70 uppercase">
+                          {project.number}&thinsp;/&thinsp;0{projects.length}
                         </span>
-                      ))}
-                    </div>
 
-                    {/* CTA — routes to detail page (Phase 12). 404 until then by design. */}
-                    <div>
-                      <Link
-                        href={`/projects/${project.slug}`}
-                        data-cursor="button"
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-accent/35 bg-accent/8 hover:bg-accent/18 hover:border-accent/65 text-accent text-sm font-bold tracking-wide transition-all duration-300 group"
-                      >
-                        View Details
-                        <ArrowRight
-                          size={14}
-                          className="transition-transform duration-200 group-hover:translate-x-1"
-                        />
-                      </Link>
+                        {/* Title — balanced typography */}
+                        <h3 className="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-foreground leading-tight truncate">
+                          {project.title}
+                        </h3>
+
+                        {/* Description with line-clamp */}
+                        <p className="text-xs md:text-sm text-foreground/75 leading-relaxed font-sans line-clamp-2 lg:line-clamp-3 mt-0.5">
+                          {project.description}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col gap-3 mt-2">
+                        <div className="flex flex-wrap gap-1.5">
+                          {project.techStack.map((tech) => (
+                            <span
+                              key={tech}
+                              className="inline-flex items-center rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 text-[10px] font-mono text-accent"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* CTA — routes to detail page */}
+                        <div>
+                          <Link
+                            href={`/projects/${project.slug}`}
+                            data-cursor="button"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-accent/30 bg-accent/10 hover:bg-accent/20 hover:border-accent/60 text-accent text-[11px] font-mono font-bold uppercase tracking-wider transition-all duration-300 group shadow-sm"
+                          >
+                            View Details
+                            <ArrowRight
+                              size={13}
+                              className="transition-transform duration-200 group-hover:translate-x-1"
+                            />
+                          </Link>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
