@@ -7,7 +7,7 @@ import HeroCard from "@/components/three/HeroCard";
 import SocialLinks from "@/components/ui/SocialLinks";
 import { scrollToSection } from "@/lib/scroll";
 
-const roles = ["Full Stack Developer", "AI Enthusiast", "MERN Developer"];
+const roles = ["Full Stack Developer", "AI Enthusiast", "MERN Developer", "Problem Solver"];
 
 function buildTypewriterTimeline(
   roleTextRef: React.RefObject<HTMLSpanElement | null>,

@@ -144,7 +144,7 @@ export default function About() {
           About <span className="text-accent">Me</span>
         </h2>
         <p className="text-sm md:text-base text-foreground/70 max-w-2xl font-sans mt-1">
-          Frontend-focused MERN developer building responsive, accessible, and high-performance web applications with modern web technologies.
+          Frontend-focused Full Stack developer building responsive, accessible, and high-performance web applications with modern web technologies.
         </p>
       </div>
 

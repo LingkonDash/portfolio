@@ -84,8 +84,8 @@ function getEducationSummary(item: EducationItem) {
   const background = item.background
     ? ` with a background in ${item.background}`
     : "";
-  const gpa = item.gpa ? `, finishing with a GPA of ${item.gpa}` : "";
-  return `Completed ${item.certificate}${background}${gpa}, laying the groundwork for everything built since.`;
+  // const gpa = item.gpa ? `, finishing with a GPA of ${item.gpa}` : "";
+  return `Completed ${item.certificate}${background}, laying the groundwork for everything built since.`;
 }
 
 /* ---------- component ---------- */

@@ -110,5 +110,12 @@
     "iconUrl": "https://cdn.simpleicons.org/visualstudiocode/007ACC",
     "icon": "Settings",
     "category": "tools"
-  }
+  },
+  {
+  "id": "tor",
+  "name": "Tor",
+  "iconUrl": "https://cdn.simpleicons.org/torbrowser/7D4698",
+  "icon": "Shield",
+  "category": "tools"
+}
 ]
